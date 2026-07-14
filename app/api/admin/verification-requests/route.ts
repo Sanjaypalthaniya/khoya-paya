@@ -1,0 +1,2 @@
+import { getAdmin } from "@/lib/admin"; import { prisma } from "@/lib/prisma"; import { successResponse, unauthorizedResponse } from "@/lib/api-response";
+export async function GET() { if (!await getAdmin()) return unauthorizedResponse(); const requests = await prisma.userVerificationRequest.findMany({ select: { id: true, type: true, status: true, rejectionReason: true, createdAt: true, updatedAt: true, user: { select: { name: true, email: true } } }, orderBy: { createdAt: "desc" }, take: 200 }); return successResponse("Verification requests loaded.", { requests }); }

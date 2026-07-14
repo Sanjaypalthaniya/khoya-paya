@@ -1,0 +1,3 @@
+import type { LucideIcon } from "lucide-react";
+export type ProcessStep={title:string;copy:string;icon:LucideIcon};
+export default function ProcessFlow({eyebrow,title,steps}:{eyebrow:string;title:string;steps:ProcessStep[]}){return <section className="process-flow" aria-labelledby={`flow-${eyebrow.replaceAll(" ","-").toLowerCase()}`}><header><span>{eyebrow}</span><h2 id={`flow-${eyebrow.replaceAll(" ","-").toLowerCase()}`}>{title}</h2></header><ol>{steps.map(({title:stepTitle,copy,icon:Icon},index)=><li key={stepTitle}><div><Icon size={21}/><span>{index+1}</span></div><h3>{stepTitle}</h3><p>{copy}</p></li>)}</ol></section>}

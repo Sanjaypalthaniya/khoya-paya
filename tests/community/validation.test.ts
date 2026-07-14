@@ -1,0 +1,7 @@
+import test from "node:test";import assert from "node:assert/strict";import { communityPostInputSchema,feedQuerySchema,mediaOrderSchema } from "../../lib/validations/community";import { communityLimits } from "../../lib/community/config";
+test("partial draft is accepted with safe defaults",()=>{const value=communityPostInputSchema.parse({intent:"DRAFT"});assert.equal(value.postType,"NEED_HELP");assert.equal(value.itemCategory,"OTHER");assert.equal(value.title,"")});
+test("publish requires complete recovery details",()=>{const result=communityPostInputSchema.safeParse({intent:"PUBLISH",postType:"LOST_ITEM",itemCategory:"WALLET",title:"Lost wallet",description:"Too short"});assert.equal(result.success,false)});
+test("public fields reject email and phone data",()=>{for(const description of ["Please email owner@example.com about this lost wallet.","Call me on +91 98765 43210 about this item."]){const result=communityPostInputSchema.safeParse({intent:"DRAFT",description});assert.equal(result.success,false)}});
+test("followers-only is not silently public",()=>{const result=communityPostInputSchema.safeParse({intent:"DRAFT",visibility:"FOLLOWERS_ONLY"});assert.equal(result.success,false)});
+test("feed page size is capped",()=>{assert.equal(feedQuerySchema.safeParse({limit:communityLimits.maxPageSize+1}).success,false);assert.equal(feedQuerySchema.parse({}).limit,communityLimits.defaultPageSize)});
+test("media order requires unique-shaped cuid identifiers",()=>{assert.equal(mediaOrderSchema.safeParse({mediaIds:["unsafe"]}).success,false)});

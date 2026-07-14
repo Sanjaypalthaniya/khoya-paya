@@ -1,0 +1,2 @@
+import { communityFailure,communitySuccess } from "@/lib/community/api";import { requireCommunityUser } from "@/lib/community/route-auth";import { getMyCommunityPosts } from "@/lib/community/service";
+export const dynamic="force-dynamic";export async function GET(){try{const user=await requireCommunityUser();return communitySuccess("Your posts loaded.",{items:await getMyCommunityPosts(user.id)})}catch(error){return communityFailure(error,"community-my-posts")}}

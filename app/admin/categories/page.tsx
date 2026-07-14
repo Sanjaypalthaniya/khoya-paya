@@ -1,0 +1,2 @@
+import { notFound } from "next/navigation"; import AdminDataPage from "@/components/admin/AdminDataPage"; import { getAdmin } from "@/lib/admin"; import { prisma } from "@/lib/prisma";
+export default async function Page(){if(!await getAdmin())notFound();const data=await prisma.category.findMany({orderBy:{name:"asc"}});return <AdminDataPage title="Categories." copy="Dynamic categories used by registration and matching." columns={["Name","Slug","Status"]} rows={data.map(x=>[x.name,x.slug,x.isActive?"Active":"Archived"])}/>;}

@@ -1,0 +1,3 @@
+import { z } from "zod";import { nearbyPosts } from "@/lib/community/nearby";import { communityFailure,communitySuccess } from "@/lib/community/api";
+const schema=z.object({latitude:z.coerce.number().min(-90).max(90),longitude:z.coerce.number().min(-180).max(180),radius:z.coerce.number().min(1).max(100).default(25),limit:z.coerce.number().int().min(1).max(50).default(20)});
+export async function GET(req:Request){try{const u=new URL(req.url);const q=schema.parse(Object.fromEntries(u.searchParams));return communitySuccess("Nearby posts",{items:await nearbyPosts(q.latitude,q.longitude,q.radius,q.limit)})}catch(e){return communityFailure(e,"community.nearby")}}

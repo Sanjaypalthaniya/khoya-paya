@@ -1,0 +1,2 @@
+import { getAdmin } from "@/lib/admin"; import { prisma } from "@/lib/prisma"; import { successResponse, unauthorizedResponse } from "@/lib/api-response";
+export async function GET() { if (!await getAdmin()) return unauthorizedResponse(); const requests = await prisma.recoveryRequest.findMany({ include: { item: { select: { itemName: true, recoveryCode: true } }, owner: { select: { name: true, email: true } }, timeline: true }, orderBy: { updatedAt: "desc" }, take: 200 }); return successResponse("Recovery requests loaded.", { requests }); }

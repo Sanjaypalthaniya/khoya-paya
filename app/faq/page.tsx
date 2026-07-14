@@ -1,0 +1,18 @@
+import Footer from "@/components/Footer";import Navbar from "@/components/Navbar";import PageHero from "@/components/PageHero";import FaqExplorer,{type FaqItem} from "@/components/marketing/FaqExplorer";
+const items:FaqItem[]=[
+ {id:"what-is-khoya-paya",category:"Account",question:"What is Khoya Paya?",answer:"Khoya Paya is a QR-based Lost & Found platform that helps people recover lost items safely."},
+ {id:"how-qr-works",category:"QR Codes",question:"How does the QR code work?",answer:"You register an item, generate a unique QR code, attach it to the item, and anyone who finds it can scan the QR to contact you safely."},
+ {id:"contact-privacy",category:"Privacy",question:"Will my phone number be public?",answer:"No. Your phone and email are hidden by default. Finders contact you through a safe message form."},
+ {id:"supported-items",category:"QR Codes",question:"What items can I protect?",answer:"You can protect bags, keys, wallets, laptops, documents, school items, pets, travel luggage, and office assets."},
+ {id:"school-office",category:"Premium",question:"Can I use it for school or office items?",answer:"Yes. Existing business plans support bulk QR and organization workflows where enabled."},
+ {id:"free-plan",category:"Premium",question:"Is there a free plan?",answer:"Yes. Free users can register limited items. Premium and Business plans unlock the features shown in the active plan catalogue."},
+ {id:"start-free",category:"Premium",question:"Can I start free?",answer:"Yes. The Free plan is designed for basic item registration and QR recovery."},
+ {id:"owner-contact",category:"Found Items",question:"Can a finder see owner contact details?",answer:"No. Phone and email stay hidden by default unless the owner chooses to share them during recovery."},
+ {id:"bulk-qr",category:"Premium",question:"Do businesses get bulk QR codes?",answer:"Active Business plans may support bulk QR codes, team workflows, and asset tracking as listed in the plan catalogue."},
+ {id:"lost-without-qr",category:"Lost Reports",question:"What if a lost item has no QR?",answer:"Search public lost-item listings or create the appropriate report. Keep secret identifying details private for verification."},
+ {id:"verification",category:"Verification",question:"Does verification guarantee safety?",answer:"No. Verification adds useful trust context, but you should still meet publicly, protect sensitive information, and verify ownership."},
+ {id:"rewards",category:"Rewards",question:"How should rewards be handled?",answer:"Never pay before ownership is verified. Keep payment discussions cautious and report suspicious requests."},
+ {id:"community",category:"Community",question:"How can the community help?",answer:"Community members can share privacy-safe information and help connect reports. Persistent community publishing requires the planned backend."},
+ {id:"safe-return",category:"Safety",question:"How do I arrange a safe return?",answer:"Use platform messaging, verify ownership, meet in a public location, and avoid sharing unnecessary private information."},
+];
+export default function FaqPage(){return <main><Navbar/><PageHero eyebrow="Help center" title="Answers for safer recovery." copy="Search QR, privacy, verification, community, plan, and account guidance."/><section className="section bg-section"><div className="container faq-page-shell"><FaqExplorer items={items}/><aside className="faq-contact-cta"><h2>Still need help?</h2><p>Choose a support category and describe the issue without including sensitive information.</p><a href="/contact">Contact support</a></aside></div></section><Footer/></main>}

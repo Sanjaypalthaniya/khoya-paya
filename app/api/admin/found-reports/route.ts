@@ -1,0 +1,2 @@
+import { getAdmin } from "@/lib/admin"; import { prisma } from "@/lib/prisma"; import { successResponse, unauthorizedResponse } from "@/lib/api-response";
+export async function GET() { if (!await getAdmin()) return unauthorizedResponse(); const reports = await prisma.foundReport.findMany({ include: { matches: { select: { matchScore: true, status: true, item: { select: { itemName: true } } } } }, orderBy: { createdAt: "desc" }, take: 200 }); return successResponse("Found reports loaded.", { reports }); }

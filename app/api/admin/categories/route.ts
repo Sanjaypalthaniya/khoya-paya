@@ -1,0 +1,4 @@
+import { z } from "zod"; import { getAdmin } from "@/lib/admin"; import { prisma } from "@/lib/prisma"; import { successResponse, unauthorizedResponse, validationErrorResponse } from "@/lib/api-response";
+const schema = z.object({ name: z.string().trim().min(2).max(80), slug: z.string().trim().regex(/^[a-z0-9-]+$/).max(90), icon: z.string().trim().max(80).optional() });
+export async function GET() { if (!await getAdmin()) return unauthorizedResponse(); const categories = await prisma.category.findMany({ orderBy: { name: "asc" } }); return successResponse("Categories loaded.", { categories }); }
+export async function POST(request: Request) { if (!await getAdmin()) return unauthorizedResponse(); const parsed = schema.safeParse(await request.json().catch(() => null)); if (!parsed.success) return validationErrorResponse(parsed.error); const category = await prisma.category.create({ data: parsed.data }); return successResponse("Category created.", { category }, 201); }

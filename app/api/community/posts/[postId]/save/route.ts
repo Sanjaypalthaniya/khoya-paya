@@ -1,0 +1,3 @@
+import { requireCommunityUser } from "@/lib/community/route-auth";import { toggleSave } from "@/lib/community/interactions";import { communityFailure,communitySuccess } from "@/lib/community/api";
+export async function PUT(req:Request,{params}:{params:Promise<{postId:string}>}){try{const u=await requireCommunityUser();return communitySuccess("Post saved",await toggleSave(u.id,(await params).postId))}catch(e){return communityFailure(e,"community.save")}}
+export async function DELETE(req:Request,{params}:{params:Promise<{postId:string}>}){try{const u=await requireCommunityUser();return communitySuccess("Post unsaved",await toggleSave(u.id,(await params).postId))}catch(e){return communityFailure(e,"community.save.delete")}}

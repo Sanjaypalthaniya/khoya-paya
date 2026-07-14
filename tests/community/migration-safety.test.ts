@@ -1,0 +1,2 @@
+import test from "node:test";import assert from "node:assert/strict";import { readFileSync } from "node:fs";import path from "node:path";
+test("community migration contains no destructive statements",()=>{const sql=readFileSync(path.join(process.cwd(),"prisma/migrations/20260715090000_community_posts_foundation/migration.sql"),"utf8");assert.doesNotMatch(sql,/\b(DROP|TRUNCATE|DELETE\s+FROM|RENAME)\b/i);assert.match(sql,/CREATE TABLE "CommunityPost"/);assert.match(sql,/REFERENCES "User"\("id"\)/)});

@@ -1,0 +1,30 @@
+type WhatsAppPayload = {
+  to?: string | null;
+  message: string;
+};
+
+export async function sendWhatsAppNotification({ to, message }: WhatsAppPayload) {
+  if (!to || process.env.WHATSAPP_PROVIDER !== "twilio") return { skipped: true };
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_WHATSAPP_FROM) {
+    return { skipped: true };
+  }
+
+  const auth = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64");
+  const body = new URLSearchParams({
+    From: process.env.TWILIO_WHATSAPP_FROM,
+    To: to.startsWith("whatsapp:") ? to : `whatsapp:${to}`,
+    Body: message,
+  });
+
+  const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+
+  if (!response.ok) throw new Error(`WhatsApp notification failed: ${response.status}`);
+  return response.json();
+}

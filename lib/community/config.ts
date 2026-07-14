@@ -1,0 +1,2 @@
+export const communityLimits={maxImages:8,maxVideos:1,maxImageBytes:Number(process.env.COMMUNITY_MAX_IMAGE_MB||5)*1024*1024,maxVideoBytes:Number(process.env.COMMUNITY_MAX_VIDEO_MB||50)*1024*1024,maxTags:8,maxTagLength:32,maxTitleLength:120,maxDescriptionLength:3000,defaultPageSize:12,maxPageSize:30} as const;
+export const communityBackendFlags={followersOnly:false,trending:false,recommended:false,nearby:false} as const;

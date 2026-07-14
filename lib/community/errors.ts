@@ -1,0 +1,2 @@
+export type CommunityErrorCode="UNAUTHENTICATED"|"FORBIDDEN"|"NOT_FOUND"|"VALIDATION_ERROR"|"INVALID_STATUS_TRANSITION"|"MEDIA_LIMIT_EXCEEDED"|"UNSUPPORTED_MEDIA"|"FILE_TOO_LARGE"|"POST_NOT_PUBLISHED"|"RATE_LIMITED"|"INTERNAL_ERROR";
+export class CommunityError extends Error{constructor(public code:CommunityErrorCode,message:string,public status:number,public fieldErrors?:Record<string,string[]>){super(message)}}

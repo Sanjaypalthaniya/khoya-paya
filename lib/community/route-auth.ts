@@ -1,0 +1,3 @@
+import { getCurrentUser } from "@/lib/auth";import { CommunityError } from "./errors";import { checkRateLimit,getRateLimitKey } from "@/lib/rate-limit";
+export async function requireCommunityUser(){const user=await getCurrentUser();if(!user||user.isBlocked)throw new CommunityError("UNAUTHENTICATED","Authentication is required.",401);return user}
+export function enforceCommunityRateLimit(request:Request,scope:string,userId:string,limit:number,windowMs=60_000){const ip=checkRateLimit({key:getRateLimitKey(request,`community:${scope}`),limit:limit*2,windowMs});const user=checkRateLimit({key:`community:${scope}:user:${userId}`,limit,windowMs});if(!ip.allowed||!user.allowed)throw new CommunityError("RATE_LIMITED","Too many requests. Please try again later.",429)}
