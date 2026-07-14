@@ -29,7 +29,7 @@ function Brand() {
   return <Link className="community-brand" href="/" aria-label="Khoya Paya home"><span aria-hidden="true">K</span><strong>Khoya Paya</strong></Link>;
 }
 
-function CommunityHeader({ user }: { user: User | null }) {
+function CommunityHeader({ user, search, setSearch, searchOpen, setSearchOpen, searchLoading, searchResults }: { user: User | null; search:string; setSearch:(value:string)=>void; searchOpen:boolean; setSearchOpen:(value:boolean)=>void; searchLoading:boolean; searchResults:Array<{id:string;title:string;location:string}> }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,9 +54,10 @@ function CommunityHeader({ user }: { user: User | null }) {
     <header className="community-header">
       <div className="community-container community-header-inner">
         <Brand />
-        <form className="community-global-search" action="/lost-items" role="search">
+        <form className="community-global-search" onSubmit={(event) => event.preventDefault()} onClick={(event) => event.stopPropagation()} role="search">
           <Search size={18} aria-hidden="true" /><label className="visually-hidden" htmlFor="global-search">Search lost and found items</label>
-          <input id="global-search" name="q" type="search" placeholder="Search lost items, locations or IDs" />
+          <input id="global-search" name="q" type="search" value={search} onFocus={() => setSearchOpen(true)} onChange={(event) => { setSearch(event.target.value); setSearchOpen(true); }} placeholder="Search lost items, locations or IDs" />
+          {searchOpen && <div className="homepage-search-popover" role="listbox" aria-label="Search results">{searchLoading && <span>Searching…</span>}{!searchLoading && search && !searchResults.length && <span>No matching public posts</span>}{searchResults.map((item) => <Link key={item.id} href={`/community/posts/${item.id}`} onClick={() => setSearchOpen(false)}><strong>{item.title}</strong><small>{item.location || "Community post"}</small></Link>)}</div>}
         </form>
         <nav className="community-desktop-nav" aria-label="Primary navigation">
           {marketingLinks.map((item) => <Link className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} href={item.href} key={item.href}>{item.label}</Link>)}
@@ -106,10 +107,15 @@ function RightSidebar() {
 
 export default function HomepageMinimal() {
   const [user, setUser] = useState<User | null>(null);
+  const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<Array<{id:string;title:string;location:string}>>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  useEffect(() => { const query = search.trim(); if (!query) { setSearchResults([]); return; } const timer = window.setTimeout(async () => { setSearchLoading(true); try { const response = await fetch(`/api/community/search?q=${encodeURIComponent(query)}&limit=5`, { cache: "no-store" }); const body = await response.json(); setSearchResults((body.data?.items ?? []).map((item: {id:string;title:string;publicLocation?:{city?:string|null;state?:string|null}}) => ({ id: item.id, title: item.title, location: [item.publicLocation?.city, item.publicLocation?.state].filter(Boolean).join(", ") }))); } catch { setSearchResults([]); } finally { setSearchLoading(false); } }, 280); return () => window.clearTimeout(timer); }, [search]);
   useEffect(() => { let mounted = true; fetch("/api/auth/me", { cache: "no-store" }).then(async (r) => ({ ok: r.ok, data: await r.json() })).then(({ ok, data }) => { if (mounted && ok && data.success) setUser(data.user); }).catch(() => undefined); return () => { mounted = false; }; }, []);
 
-  return <main className="community-home">
-    <CommunityHeader user={user} />
+  return <main className="community-home" onClick={() => searchOpen && setSearchOpen(false)}>
+    <CommunityHeader user={user} search={search} setSearch={setSearch} searchOpen={searchOpen} setSearchOpen={setSearchOpen} searchLoading={searchLoading} searchResults={searchResults} />
     <section className="community-hero">
       <div className="community-container hero-grid"><div><span className="hero-kicker"><Users size={15} />India&apos;s community recovery network</span><h1>Lost something?<br /><em>Let your community help.</em></h1><p>Report lost or found items, search nearby posts, and protect valuables with private QR recovery.</p><div className="hero-actions"><Link className="community-button lost-action" href="/dashboard/items/add">Report lost item</Link><Link className="community-button found-action" href="/report-found-item">Report found item</Link><Link className="community-button secondary" href="/recover"><QrCode size={18} />Scan or enter QR</Link></div></div><form className="hero-search" action="/lost-items" role="search"><label htmlFor="hero-search">Search Lost &amp; Found</label><div><Search size={20} /><input id="hero-search" name="q" type="search" placeholder="Try “black wallet in Pune”" /><button type="submit">Search</button></div><small><ShieldCheck size={14} />Privacy-safe public listings</small></form></div>
     </section>
