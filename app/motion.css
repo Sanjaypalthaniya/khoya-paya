@@ -1,0 +1,188 @@
+:root {
+  --motion-instant: 120ms;
+  --motion-fast: 200ms;
+  --motion-card: 260ms;
+  --motion-overlay: 300ms;
+  --motion-ease-out: cubic-bezier(.22, 1, .36, 1);
+  --motion-ease-soft: cubic-bezier(.65, 0, .35, 1);
+}
+
+:where(a, button, summary, [role="button"]) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(.btn, .kp-button, button:not(.unstyled), [role="button"]) {
+  transition:
+    color var(--motion-fast) var(--motion-ease-out),
+    background-color var(--motion-fast) var(--motion-ease-out),
+    border-color var(--motion-fast) var(--motion-ease-out),
+    box-shadow var(--motion-fast) var(--motion-ease-out),
+    transform var(--motion-fast) var(--motion-ease-out);
+  transform-origin: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(.btn, .kp-button, button:not(.unstyled), [role="button"]):not(:disabled):hover {
+    transform: translateY(-2px) scale(1.012);
+  }
+
+  :where(.btn, .kp-button, button:not(.unstyled), [role="button"]):not(:disabled):hover svg {
+    transform: translateX(2px);
+  }
+
+  :where(
+    .item-card,
+    .dashboard-item-card,
+    .pricing-card,
+    .kp-step-grid > article,
+    .kp-use-card,
+    .kp-resource-card,
+    .about-principles > article,
+    .support-category-grid > article
+  ):hover {
+    transform: translateY(-3px);
+  }
+
+  :where(
+    .item-card,
+    .dashboard-item-card,
+    .kp-use-card,
+    .kp-resource-card
+  ):hover img {
+    transform: scale(1.035);
+  }
+}
+
+:where(.btn, .kp-button, button:not(.unstyled), [role="button"]):not(:disabled):active {
+  transform: translateY(0) scale(.975);
+  transition-duration: var(--motion-instant);
+}
+
+:where(.btn, .kp-button, button, a, summary):focus-visible {
+  outline: 3px solid color-mix(in srgb, #0052f2 32%, transparent);
+  outline-offset: 3px;
+}
+
+:where(.btn, .kp-button, button):disabled {
+  transform: none !important;
+}
+
+:where(.btn, .kp-button, button) svg,
+:where(.kp-text-link, .community-back-link, .link-button) svg {
+  transition: transform var(--motion-fast) var(--motion-ease-out);
+}
+
+:where(.kp-text-link, .community-back-link, .link-button, .footer-links a, .nav-links a) {
+  position: relative;
+}
+
+:where(.kp-text-link, .community-back-link, .link-button, .footer-links a, .nav-links a)::after {
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--motion-fast) var(--motion-ease-out);
+}
+
+:where(.kp-text-link, .community-back-link, .link-button, .footer-links a, .nav-links a):hover::after,
+:where(.kp-text-link, .community-back-link, .link-button, .footer-links a, .nav-links a).active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+:where(
+  .item-card,
+  .dashboard-item-card,
+  .community-post-card,
+  .conversation-card,
+  .notification-card,
+  .dashboard-message-card,
+  .pricing-card,
+  .kp-step-grid > article,
+  .kp-use-card,
+  .kp-resource-card,
+  .about-principles > article,
+  .support-category-grid > article
+) {
+  transition:
+    transform var(--motion-card) var(--motion-ease-out),
+    border-color var(--motion-card) var(--motion-ease-out),
+    box-shadow var(--motion-card) var(--motion-ease-out),
+    background-color var(--motion-card) var(--motion-ease-out);
+}
+
+:where(
+  .item-card,
+  .dashboard-item-card,
+  .kp-use-card,
+  .kp-resource-card
+) img {
+  transition: transform 480ms var(--motion-ease-out);
+}
+
+:where(input, textarea, select) {
+  transition:
+    border-color var(--motion-fast) var(--motion-ease-out),
+    box-shadow var(--motion-fast) var(--motion-ease-out),
+    background-color var(--motion-fast) var(--motion-ease-out);
+}
+
+:where(.modal, .dropdown-menu, .dashboard-profile > div, .post-menu, .report-modal) {
+  transform-origin: top right;
+  animation: motion-overlay-in var(--motion-overlay) var(--motion-ease-out) both;
+}
+
+:where(.mobile-navigation, .dashboard-sidebar) {
+  transition:
+    transform var(--motion-overlay) var(--motion-ease-out),
+    opacity var(--motion-overlay) var(--motion-ease-out),
+    visibility var(--motion-overlay);
+}
+
+:where(.empty-state, [data-empty-state]) {
+  animation: motion-empty-in 480ms var(--motion-ease-out) both;
+}
+
+.skeleton,
+[class*="skeleton"] {
+  background-size: 220% 100%;
+  animation: motion-shimmer 1.5s linear infinite;
+}
+
+@keyframes motion-overlay-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.985); }
+}
+
+@keyframes motion-empty-in {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+@keyframes motion-shimmer {
+  to { background-position-x: -220%; }
+}
+
+@media (pointer: coarse) {
+  :where(.btn, .kp-button, button, [role="button"]) {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+
+  :where(.btn, .kp-button, button, [role="button"], [class*="card"]) {
+    transform: none !important;
+  }
+}

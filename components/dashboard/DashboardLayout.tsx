@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronDown, Search } from "lucide-react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
+import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
 import NotificationBell from "@/components/dashboard/NotificationBell";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -58,6 +59,7 @@ export default async function DashboardLayout({ active, children }: DashboardLay
         </header>
         <div className="dashboard-content">{children}</div>
       </div>
+      <DashboardMobileNav active={active} />
     </div>
   );
 }

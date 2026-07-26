@@ -1,0 +1,15 @@
+.signup-redesign .login-form-panel{padding-block:32px}
+.signup-redesign .login-form-shell{width:min(100%,460px)}
+.signup-redesign .login-brand{margin-bottom:30px}
+.signup-redesign .login-heading h1{font-size:clamp(36px,3.6vw,52px)}
+.signup-redesign .login-heading p{margin:12px 0 18px}
+.signup-redesign .login-form{gap:6px}
+.signup-redesign .login-form>label{margin-top:5px}
+.signup-redesign .login-form>label small{color:var(--login-muted);font-size:10px;font-weight:500}
+.signup-redesign .login-form>input,
+.signup-redesign .login-password-field>input{height:44px}
+.signup-terms{margin:7px 0 5px;line-height:1.45}
+.signup-terms a{color:#4f5700!important;font-weight:700}
+.signup-redesign .login-switch{margin-top:15px}
+.signup-redesign .login-privacy{margin-top:20px;padding-top:15px}
+@media(max-width:760px){.signup-redesign .login-form-panel{padding-block:24px}.signup-redesign .login-brand{margin-bottom:34px}}

@@ -49,7 +49,7 @@ function PhoneMockup({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function Header({ user }: { user: User | null }) {
+function Header({ user, authReady }: { user: User | null; authReady: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="kp-home-header">
@@ -62,7 +62,16 @@ function Header({ user }: { user: User | null }) {
         <Link className="kp-button kp-button-light kp-button-small" href={user ? "/dashboard/items/add" : "/signup"}>{user ? "Add item" : "Get Started"}</Link>
         <button className="kp-menu-button" type="button" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
       </div>
-      {open && <nav className="kp-mobile-menu" aria-label="Mobile navigation">{navLinks.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}<Link href="/login">Sign in</Link><Link href="/signup">Get started</Link></nav>}
+      {open && <nav className="kp-mobile-menu" aria-label="Mobile navigation">
+        {navLinks.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}
+        {authReady && user ? <>
+          <Link href="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
+          <Link href="/dashboard/items/add" onClick={() => setOpen(false)}>Add item</Link>
+        </> : authReady ? <>
+          <Link href="/login" onClick={() => setOpen(false)}>Sign in</Link>
+          <Link href="/signup" onClick={() => setOpen(false)}>Get started</Link>
+        </> : null}
+      </nav>}
     </header>
   );
 }
@@ -74,11 +83,14 @@ function SectionTitle({ title, copy }: { title: string; copy?: string }) {
 export default function HomepageMinimal() {
   const caseSliderRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
     let mounted = true;
     fetch("/api/auth/me", { cache: "no-store" }).then(r => r.json()).then(data => {
       if (mounted && data.success) setUser(data.user);
-    }).catch(() => undefined);
+    }).catch(() => undefined).finally(() => {
+      if (mounted) setAuthReady(true);
+    });
     return () => { mounted = false; };
   }, []);
 
@@ -86,7 +98,7 @@ export default function HomepageMinimal() {
     <section className="kp-hero">
       <Image src="/images/kp-home-hero.png" fill priority sizes="100vw" alt="" className="kp-hero-image" />
       <div className="kp-hero-shade" />
-      <Header user={user} />
+      <Header user={user} authReady={authReady} />
       <div className="kp-hero-copy">
         <span className="kp-kicker">Community-powered lost &amp; found</span>
         <h1>Bring Lost Things Home.<br />All in One Place.</h1>

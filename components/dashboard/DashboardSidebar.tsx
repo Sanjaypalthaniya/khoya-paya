@@ -11,7 +11,7 @@ import {
 const linkGroups = [
   { label: "Workspace", links: [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Feed", href: "/community", icon: Newspaper },
+    { label: "Feed", href: "/dashboard/feed", icon: Newspaper },
     { label: "My Items", href: "/dashboard/items", icon: Box },
     { label: "Add Item", href: "/dashboard/items/add", icon: Plus },
     { label: "Community Posts", href: "/dashboard/community-posts", icon: FileUp },

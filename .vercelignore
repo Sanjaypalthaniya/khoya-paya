@@ -1,0 +1,9 @@
+mobile/
+mobile/**
+**/*.apk
+**/*.aab
+**/build/app/
+**/build/flutter_assets/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies

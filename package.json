@@ -8,7 +8,7 @@
     "build": "next build",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/community/*.test.ts tests/payments/*.test.ts",
+    "test": "tsx --test tests/community/*.test.ts tests/payments/*.test.ts tests/mobile/*.test.ts tests/mobile-auth/*.test.ts",
     "prisma:validate": "prisma validate",
     "predeploy": "npm run prisma:validate && npm run typecheck && npm run lint && npm test && npm run build",
     "migrate:deploy": "prisma migrate deploy",

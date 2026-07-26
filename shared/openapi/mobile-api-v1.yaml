@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: Khoya Paya Mobile API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: Create a device-bound mobile session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "201": { description: Token pair and safe user DTO }
+        "400": { $ref: "#/components/responses/ApiError" }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "403": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
+  /auth/refresh:
+    post:
+      summary: Rotate a refresh token and issue a new token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken, deviceId]
+              properties:
+                refreshToken: { type: string }
+                deviceId: { type: string }
+      responses:
+        "200": { description: Rotated token pair }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
+  /auth/logout:
+    post:
+      summary: Revoke only the current mobile session
+      security: [{ mobileBearer: [] }]
+      responses:
+        "200": { description: Session revoked }
+        "401": { $ref: "#/components/responses/ApiError" }
+  /auth/logout-all:
+    post:
+      summary: Revoke all mobile sessions for the authenticated user
+      security: [{ mobileBearer: [] }]
+      responses:
+        "200": { description: Active mobile session count revoked }
+        "401": { $ref: "#/components/responses/ApiError" }
+        "429": { $ref: "#/components/responses/ApiError" }
+  /auth/me:
+    get:
+      summary: Return the mobile-safe current user
+      security: [{ mobileBearer: [] }]
+      responses:
+        "200": { description: Safe user DTO }
+        "401": { $ref: "#/components/responses/ApiError" }
+  /health/client:
+    get:
+      summary: Return safe client compatibility metadata
+      responses:
+        "200": { description: API and app-version compatibility }
+components:
+  securitySchemes:
+    mobileBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Device:
+      type: object
+      required: [deviceId, platform]
+      properties:
+        deviceId: { type: string, minLength: 8, maxLength: 200 }
+        platform: { type: string, enum: [android, ios] }
+        deviceName: { type: string, maxLength: 120 }
+        appVersion: { type: string, maxLength: 40 }
+    LoginRequest:
+      type: object
+      required: [identifier, password, device]
+      properties:
+        identifier: { type: string, format: email }
+        password: { type: string, format: password }
+        device: { $ref: "#/components/schemas/Device" }
+    ApiError:
+      type: object
+      required: [success, error]
+      properties:
+        success: { const: false }
+        error:
+          type: object
+          required: [code, message, fieldErrors]
+          properties:
+            code:
+              enum: [VALIDATION_ERROR, INVALID_CREDENTIALS, AUTHENTICATION_REQUIRED, TOKEN_EXPIRED, REFRESH_TOKEN_INVALID, SESSION_REVOKED, ACCOUNT_BLOCKED, ACCOUNT_SUSPENDED, FORBIDDEN, RATE_LIMITED, NOT_FOUND, INTERNAL_ERROR]
+            message: { type: string }
+            fieldErrors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+  responses:
+    ApiError:
+      description: Stable mobile API error envelope
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
