@@ -8,7 +8,16 @@
     "build": "next build",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/community/*.test.ts",
+    "test": "tsx --test tests/community/*.test.ts tests/payments/*.test.ts",
+    "prisma:validate": "prisma validate",
+    "predeploy": "npm run prisma:validate && npm run typecheck && npm run lint && npm test && npm run build",
+    "migrate:deploy": "prisma migrate deploy",
+    "backfill:community": "tsx scripts/backfill-item-community-posts.ts",
+    "backfill:reputation": "tsx scripts/backfill-community-reputation.ts",
+    "backfill:media-moderation": "tsx scripts/backfill-community-media-moderation.ts",
+    "calculate:trending": "tsx scripts/recalculate-community-rankings.ts",
+    "calculate:leaderboard": "tsx scripts/calculate-community-leaderboard.ts",
+    "select:community-hero": "tsx scripts/select-monthly-community-hero.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

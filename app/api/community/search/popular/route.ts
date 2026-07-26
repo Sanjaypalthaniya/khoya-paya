@@ -1,0 +1,2 @@
+import { prisma } from "@/lib/prisma";import { communityFailure,communitySuccess } from "@/lib/community/api";
+export async function GET(){try{const periodKey=new Date().toISOString().slice(0,7),rows=await prisma.searchAggregate.findMany({where:{periodKey,searchCount:{gte:5},normalizedQuery:{not:{contains:"@"}}},orderBy:{searchCount:"desc"},take:10,select:{normalizedQuery:true,searchCount:true,city:true,country:true}});return communitySuccess("Popular aggregated searches",rows)}catch(error){return communityFailure(error,"community.search.popular")}}

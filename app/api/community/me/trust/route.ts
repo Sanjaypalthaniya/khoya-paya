@@ -1,0 +1,2 @@
+import { requireCommunityUser } from "@/lib/community/route-auth";import { communityFailure,communitySuccess } from "@/lib/community/api";import { trustDto } from "@/lib/community/reputation";
+export async function GET(){try{const user=await requireCommunityUser();return communitySuccess("Your trust summary",await trustDto(user.id,true))}catch(error){return communityFailure(error,"community.me.trust")}}

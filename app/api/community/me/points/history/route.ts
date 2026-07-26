@@ -1,0 +1,2 @@
+import { requireCommunityUser } from "@/lib/community/route-auth";import { communityFailure,communitySuccess } from "@/lib/community/api";import { prisma } from "@/lib/prisma";
+export async function GET(){try{const user=await requireCommunityUser();return communitySuccess("Private points history",await prisma.communityPointLedger.findMany({where:{userId:user.id},orderBy:{createdAt:"desc"},take:50,select:{id:true,activityType:true,points:true,reason:true,status:true,createdAt:true,reversedAt:true}}))}catch(error){return communityFailure(error,"community.me.points.history")}}

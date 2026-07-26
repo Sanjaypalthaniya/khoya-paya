@@ -1,0 +1,2 @@
+import { requireCommunityUser } from "@/lib/community/route-auth";import { communityFailure,communitySuccess } from "@/lib/community/api";import { prisma } from "@/lib/prisma";
+export async function GET(){try{const user=await requireCommunityUser();return communitySuccess("Your badges",await prisma.userBadge.findMany({where:{userId:user.id,revokedAt:null},include:{badge:true},orderBy:{awardedAt:"desc"}}))}catch(error){return communityFailure(error,"community.me.badges")}}

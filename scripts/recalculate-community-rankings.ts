@@ -1,0 +1,2 @@
+import { recalculateTrending } from "../lib/community/trending";import { prisma } from "../lib/prisma";
+async function main(){const apply=process.argv.includes("--apply"),limitArg=process.argv.find(value=>value.startsWith("--limit=")),limit=limitArg?Number(limitArg.split("=")[1]):500;console.log(JSON.stringify(await recalculateTrending(limit,!apply),null,2))}main().finally(()=>prisma.$disconnect());

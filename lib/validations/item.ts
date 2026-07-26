@@ -6,9 +6,11 @@ export const itemCategories = [
   "Keys",
   "Mobile",
   "Laptop",
+  "Electronics",
   "Documents",
   "School Item",
   "Pet",
+  "Vehicle",
   "Travel Luggage",
   "Office Asset",
   "Other",
@@ -20,7 +22,7 @@ export const contactPreferences = [
   "Show Email After Approval",
 ] as const;
 
-export const itemStatusValues = ["SAFE", "LOST", "FOUND", "RECOVERED"] as const;
+export const itemStatusValues = ["SAFE", "LOST", "FOUND", "MISSING", "RECOVERED"] as const;
 
 const optionalUrl = z.string().trim().url("Enter a valid image URL").refine(
   (value) => value.startsWith("https://"),
@@ -49,6 +51,8 @@ export const createItemSchema = z.object({
   lastSeenLocation: z.string().trim().max(300).optional().or(z.literal("")),
   publicSearchVisible: z.boolean().optional().default(false),
   qrRecoveryEnabled: z.boolean().optional().default(true),
+  publishToCommunity: z.boolean().optional(),
+  clientRequestId: z.string().uuid().optional(),
   imageUrls: z.array(z.string().url().refine((value) => value.startsWith("https://"))).max(5).optional().default([]),
 });
 
@@ -60,6 +64,7 @@ export const updateItemSchema = createItemSchema.partial().extend({
 
 export const statusUpdateSchema = z.object({
   status: z.enum(itemStatusValues),
+  publishToCommunity: z.boolean().optional(),
 });
 
 export const lostModeSchema = z.object({

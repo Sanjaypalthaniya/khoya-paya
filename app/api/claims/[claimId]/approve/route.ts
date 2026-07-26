@@ -1,0 +1,1 @@
+import { claimTransitionRoute } from "@/lib/claims/api";export async function POST(request:Request,{params}:{params:Promise<{claimId:string}>}){return claimTransitionRoute(request,(await params).claimId,"VERIFIED")}

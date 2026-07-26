@@ -12,6 +12,7 @@ type ItemCardProps = {
     lostModeEnabled: boolean;
     createdAt: Date;
     qrCode: { id: string } | null;
+    communityPost: { id: string; status: string } | null;
   };
 };
 
@@ -31,8 +32,10 @@ export default function ItemCard({ item }: ItemCardProps) {
       <div className="item-badge-row">
         <span>{item.lostModeEnabled ? "Lost Mode On" : "Lost Mode Off"}</span>
         <span>{item.qrCode ? "QR Generated" : "No QR"}</span>
+        <span>{item.communityPost ? `${item.communityPost.status} in Feed` : "Private"}</span>
       </div>
-      <ItemActions itemId={item.id} hasQr={Boolean(item.qrCode)} lostModeEnabled={item.lostModeEnabled} />
+      <p>{item.communityPost ? "Visible in Community Feed." : "Protected privately. Not visible in Community Feed."}</p>
+      <ItemActions itemId={item.id} hasQr={Boolean(item.qrCode)} lostModeEnabled={item.lostModeEnabled} communityPost={item.communityPost} status={item.status} />
     </article>
   );
 }

@@ -1,0 +1,15 @@
+CREATE TYPE "ModerationTargetType" AS ENUM ('POST', 'COMMENT', 'MEDIA');
+CREATE TYPE "ModerationDecision" AS ENUM ('APPROVED', 'UNDER_REVIEW', 'REJECTED');
+CREATE TYPE "ModerationSource" AS ENUM ('LOCAL_RULES', 'SELF_HOSTED', 'COMMUNITY', 'ADMIN');
+CREATE TYPE "ModerationActionType" AS ENUM ('APPROVE', 'REJECT', 'RESTORE', 'HIDE', 'DELETE', 'WARN', 'SUSPEND');
+ALTER TABLE "PostMedia" ADD COLUMN "contentHash" TEXT, ADD COLUMN "moderationReason" TEXT, ADD COLUMN "moderationStatus" "CommunityModerationStatus" NOT NULL DEFAULT 'PENDING';
+CREATE TABLE "ModerationCase" ("id" TEXT NOT NULL, "targetType" "ModerationTargetType" NOT NULL, "targetId" TEXT NOT NULL, "ownerId" TEXT, "decision" "ModerationDecision" NOT NULL, "source" "ModerationSource" NOT NULL DEFAULT 'LOCAL_RULES', "provider" TEXT NOT NULL, "riskScore" DOUBLE PRECISION NOT NULL, "reasonCode" TEXT NOT NULL, "userMessage" TEXT NOT NULL, "signals" JSONB, "contentHash" TEXT, "modelVersion" TEXT, "reviewedById" TEXT, "reviewedAt" TIMESTAMP(3), "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL, CONSTRAINT "ModerationCase_pkey" PRIMARY KEY ("id"));
+CREATE TABLE "ModerationAction" ("id" TEXT NOT NULL, "caseId" TEXT NOT NULL, "adminId" TEXT NOT NULL, "action" "ModerationActionType" NOT NULL, "reason" TEXT NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "ModerationAction_pkey" PRIMARY KEY ("id"));
+CREATE INDEX "ModerationCase_decision_createdAt_idx" ON "ModerationCase"("decision", "createdAt");
+CREATE INDEX "ModerationCase_targetType_targetId_createdAt_idx" ON "ModerationCase"("targetType", "targetId", "createdAt");
+CREATE INDEX "ModerationCase_ownerId_createdAt_idx" ON "ModerationCase"("ownerId", "createdAt");
+CREATE INDEX "ModerationCase_contentHash_idx" ON "ModerationCase"("contentHash");
+CREATE INDEX "ModerationAction_caseId_createdAt_idx" ON "ModerationAction"("caseId", "createdAt");
+CREATE INDEX "ModerationAction_adminId_createdAt_idx" ON "ModerationAction"("adminId", "createdAt");
+CREATE UNIQUE INDEX "CommunityReport_reporterId_targetType_targetPostId_targetCo_key" ON "CommunityReport"("reporterId", "targetType", "targetPostId", "targetCommentId", "targetUserId");
+ALTER TABLE "ModerationAction" ADD CONSTRAINT "ModerationAction_caseId_fkey" FOREIGN KEY ("caseId") REFERENCES "ModerationCase"("id") ON DELETE CASCADE ON UPDATE CASCADE;

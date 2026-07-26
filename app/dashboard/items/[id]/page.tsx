@@ -17,9 +17,10 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   const { id } = await params;
   const user = await getCurrentUser();
   const item = user ? await prisma.item.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: user.id, deletedAt: null },
     include: {
       qrCode: true,
+      communityPost: { select: { id: true, status: true } },
       finderMessages: { orderBy: { createdAt: "desc" }, take: 5 },
       scanLogs: { orderBy: { scannedAt: "desc" }, take: 5 },
     },
@@ -36,7 +37,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           <DashboardLayout active="/dashboard/items">
             <div className="dash-toolbar">
               <div><small>{item.category}</small><h3>{item.itemName}</h3></div>
-              <ItemActions itemId={item.id} hasQr={Boolean(item.qrCode)} lostModeEnabled={item.lostModeEnabled} />
+              <ItemActions itemId={item.id} hasQr={Boolean(item.qrCode)} lostModeEnabled={item.lostModeEnabled} status={item.status} communityPost={item.communityPost} />
             </div>
             <div className="item-detail-grid">
               <article className="dashboard-message-card">

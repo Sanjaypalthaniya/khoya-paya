@@ -1,0 +1,2 @@
+import { requireCommunityUser } from "@/lib/community/route-auth";import { communityFailure,communitySuccess } from "@/lib/community/api";import { prisma } from "@/lib/prisma";
+export async function GET(){try{const user=await requireCommunityUser(),profile=await prisma.trustProfile.findUnique({where:{userId:user.id},select:{pointsBalance:true,lifetimePoints:true}});return communitySuccess("Points summary",profile??{pointsBalance:0,lifetimePoints:0})}catch(error){return communityFailure(error,"community.me.points")}}

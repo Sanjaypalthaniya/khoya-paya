@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import "./minimal-system.css";
+import "./ui-system.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),

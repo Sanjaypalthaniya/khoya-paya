@@ -1,0 +1,2 @@
+import { LeaderboardPeriod,LeaderboardType } from "@prisma/client";import { calculateLeaderboard } from "../lib/community/leaderboard";import { prisma } from "../lib/prisma";
+async function main(){const apply=process.argv.includes("--apply"),type=(process.argv.find(value=>value.startsWith("--type="))?.split("=")[1]??"TOP_HELPERS") as LeaderboardType,period=(process.argv.find(value=>value.startsWith("--period="))?.split("=")[1]??"WEEKLY") as LeaderboardPeriod;console.log(await calculateLeaderboard(type,period,!apply))}main().finally(()=>prisma.$disconnect());

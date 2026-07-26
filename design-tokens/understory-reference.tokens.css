@@ -1,0 +1,182 @@
+/**
+ * Understory reference design tokens
+ * Source inspected: https://understory.io/ (2026-07-23)
+ * Reference-derived values for visual direction; not copied brand assets or content.
+ * This file is intentionally not imported by the application.
+ */
+
+:root {
+  /* Primary colours */
+  --ref-color-primary-50: #f0f5ef;
+  --ref-color-primary-100: #dce9da;
+  --ref-color-primary-300: #96b497;
+  --ref-color-primary-500: #37684c;
+  --ref-color-primary-600: #28573e;
+  --ref-color-primary-700: #1d4834;
+  --ref-color-primary-800: #153b2b;
+  --ref-color-primary-900: #0d2f22;
+  --ref-color-primary-950: #08251a;
+
+  /* Secondary and highlight colours */
+  --ref-color-lime-100: #f8fbc9;
+  --ref-color-lime-300: #f1f97e;
+  --ref-color-lime-400: #e8f15e;
+  --ref-color-yellow-100: #fff5bd;
+  --ref-color-peach-100: #f9e7d9;
+  --ref-color-pink-100: #f5dfe5;
+  --ref-color-blue-100: #dcecf1;
+  --ref-color-lavender-100: #e8e2f1;
+
+  /* Backgrounds and surfaces */
+  --ref-background-canvas: #f7f5ef;
+  --ref-background-canvas-muted: #efede5;
+  --ref-background-dark: #0d2f22;
+  --ref-background-highlight: #f1f97e;
+  --ref-surface-primary: #ffffff;
+  --ref-surface-secondary: #fbfaf6;
+  --ref-surface-tinted: #f0f5ef;
+  --ref-surface-glass: rgba(255, 255, 255, 0.78);
+  --ref-surface-dark-glass: rgba(13, 47, 34, 0.9);
+
+  /* Text, borders, and dividers */
+  --ref-text-primary: #10271d;
+  --ref-text-secondary: #53635b;
+  --ref-text-muted: #7d8982;
+  --ref-text-inverse: #fbfcf8;
+  --ref-text-accent: #1d4834;
+  --ref-border-subtle: rgba(16, 39, 29, 0.1);
+  --ref-border-default: rgba(16, 39, 29, 0.16);
+  --ref-border-strong: rgba(16, 39, 29, 0.28);
+  --ref-divider: rgba(16, 39, 29, 0.12);
+
+  /* Semantic colours */
+  --ref-success: #28724e;
+  --ref-warning: #ad7518;
+  --ref-danger: #a9453b;
+  --ref-info: #3a6675;
+
+  /* Typography */
+  --ref-font-display: "Suisse Intl", "Neue Montreal", "Inter", Arial, sans-serif;
+  --ref-font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --ref-font-mono: "SFMono-Regular", Consolas, monospace;
+  --ref-font-size-hero: clamp(3.5rem, 6.8vw, 7.25rem);
+  --ref-font-size-display: clamp(2.75rem, 5vw, 5.5rem);
+  --ref-font-size-h1: clamp(2.5rem, 4.5vw, 4.75rem);
+  --ref-font-size-h2: clamp(2rem, 3.4vw, 3.75rem);
+  --ref-font-size-h3: clamp(1.5rem, 2.1vw, 2.25rem);
+  --ref-font-size-h4: 1.25rem;
+  --ref-font-size-lead: clamp(1.125rem, 1.35vw, 1.375rem);
+  --ref-font-size-body: 1rem;
+  --ref-font-size-small: 0.875rem;
+  --ref-font-size-caption: 0.75rem;
+  --ref-font-size-label: 0.8125rem;
+  --ref-font-size-button: 0.9375rem;
+  --ref-font-size-navigation: 0.9375rem;
+  --ref-font-weight-regular: 400;
+  --ref-font-weight-medium: 500;
+  --ref-font-weight-semibold: 600;
+  --ref-font-weight-bold: 700;
+  --ref-line-height-display: 0.94;
+  --ref-line-height-heading: 1.05;
+  --ref-line-height-tight: 1.2;
+  --ref-line-height-body: 1.6;
+  --ref-line-height-relaxed: 1.75;
+  --ref-letter-spacing-display: -0.055em;
+  --ref-letter-spacing-heading: -0.035em;
+  --ref-letter-spacing-body: -0.01em;
+  --ref-letter-spacing-label: 0.08em;
+
+  /* 8px spacing and layout grid */
+  --ref-space-0: 0;
+  --ref-space-1: 0.5rem;
+  --ref-space-2: 1rem;
+  --ref-space-3: 1.5rem;
+  --ref-space-4: 2rem;
+  --ref-space-5: 2.5rem;
+  --ref-space-6: 3rem;
+  --ref-space-8: 4rem;
+  --ref-space-10: 5rem;
+  --ref-space-12: 6rem;
+  --ref-space-16: 8rem;
+  --ref-section-space: clamp(5rem, 10vw, 9rem);
+  --ref-container-sm: 760px;
+  --ref-container-md: 1040px;
+  --ref-container-lg: 1280px;
+  --ref-container-xl: 1440px;
+  --ref-container-gutter: clamp(1.25rem, 4vw, 4rem);
+  --ref-grid-columns: 12;
+  --ref-grid-gap: clamp(1rem, 2vw, 2rem);
+
+  /* Shape */
+  --ref-radius-xs: 6px;
+  --ref-radius-sm: 10px;
+  --ref-radius-md: 16px;
+  --ref-radius-lg: 24px;
+  --ref-radius-xl: 32px;
+  --ref-radius-pill: 999px;
+
+  /* Elevation and blur */
+  --ref-shadow-xs: 0 1px 2px rgba(8, 37, 26, 0.05);
+  --ref-shadow-sm: 0 8px 24px rgba(8, 37, 26, 0.07);
+  --ref-shadow-md: 0 18px 48px rgba(8, 37, 26, 0.1);
+  --ref-shadow-lg: 0 30px 80px rgba(8, 37, 26, 0.14);
+  --ref-shadow-inset: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  --ref-blur-glass: 18px;
+
+  /* Motion */
+  --ref-duration-instant: 100ms;
+  --ref-duration-fast: 180ms;
+  --ref-duration-normal: 280ms;
+  --ref-duration-slow: 500ms;
+  --ref-duration-reveal: 700ms;
+  --ref-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ref-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ref-ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+
+  /* Component contracts */
+  --ref-button-height-sm: 40px;
+  --ref-button-height-md: 48px;
+  --ref-button-height-lg: 56px;
+  --ref-button-padding-inline: 24px;
+  --ref-button-radius: var(--ref-radius-pill);
+  --ref-button-primary-bg: var(--ref-color-primary-900);
+  --ref-button-primary-text: var(--ref-text-inverse);
+  --ref-button-primary-hover: var(--ref-color-primary-700);
+  --ref-button-secondary-bg: transparent;
+  --ref-button-secondary-text: var(--ref-text-primary);
+  --ref-button-secondary-border: var(--ref-border-default);
+  --ref-card-background: var(--ref-surface-primary);
+  --ref-card-border: var(--ref-border-subtle);
+  --ref-card-radius: var(--ref-radius-lg);
+  --ref-card-padding: clamp(1.5rem, 3vw, 2.5rem);
+  --ref-card-shadow: var(--ref-shadow-sm);
+  --ref-card-hover-shadow: var(--ref-shadow-md);
+  --ref-input-height: 52px;
+  --ref-input-background: var(--ref-surface-primary);
+  --ref-input-border: var(--ref-border-default);
+  --ref-input-radius: var(--ref-radius-sm);
+  --ref-input-padding-inline: 16px;
+  --ref-input-focus-border: var(--ref-color-primary-600);
+  --ref-input-focus-ring: 0 0 0 4px rgba(40, 87, 62, 0.14);
+  --ref-nav-height: 80px;
+  --ref-nav-background: rgba(247, 245, 239, 0.88);
+  --ref-nav-border: rgba(16, 39, 29, 0.08);
+  --ref-nav-blur: 16px;
+
+  /* Interaction effects */
+  --ref-hover-lift-sm: translateY(-2px);
+  --ref-hover-lift-md: translateY(-5px);
+  --ref-hover-scale: scale(1.015);
+  --ref-press-scale: scale(0.98);
+  --ref-image-hover-scale: scale(1.035);
+  --ref-focus-ring: 0 0 0 4px rgba(40, 87, 62, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ref-duration-fast: 1ms;
+    --ref-duration-normal: 1ms;
+    --ref-duration-slow: 1ms;
+    --ref-duration-reveal: 1ms;
+  }
+}

@@ -12,9 +12,9 @@ export async function GET() {
   if (!user || user.isBlocked) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
 
   const items = await prisma.item.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, deletedAt: null },
     orderBy: { createdAt: "desc" },
-    include: { qrCode: true, _count: { select: { finderMessages: true, scanLogs: true } } },
+    include: { qrCode: true, communityPost: { select: { id: true, status: true, visibility: true } }, _count: { select: { finderMessages: true, scanLogs: true } } },
   });
 
   return NextResponse.json({ success: true, message: "Items loaded.", data: { items } });
@@ -30,6 +30,8 @@ export async function POST(request: Request) {
   }
   try {
     const recoveryCode = await generateRecoveryCode();
+    const eligibleForCommunity = ["LOST", "FOUND", "MISSING"].includes(parsed.data.status);
+    const publishToCommunity = eligibleForCommunity && (parsed.data.publishToCommunity ?? true);
     const result = await createItemWithCommunityIntegration(user.id, {
       userId: user.id,
       itemName: parsed.data.itemName,
@@ -48,18 +50,22 @@ export async function POST(request: Request) {
       purchaseDate: parsed.data.purchaseDate ?? null,
       estimatedValue: parsed.data.estimatedValue ?? null,
       recoveryPreference: parsed.data.recoveryPreference || null,
-      visibility: parsed.data.visibility,
+      visibility: publishToCommunity ? "PUBLIC" : parsed.data.visibility,
       emergencyContact: parsed.data.emergencyContact || null,
       lostDate: parsed.data.lostDate ?? null,
       lastSeenLocation: parsed.data.lastSeenLocation || null,
-      publicSearchVisible: parsed.data.publicSearchVisible,
+      publicSearchVisible: publishToCommunity || parsed.data.publicSearchVisible,
       qrRecoveryEnabled: parsed.data.qrRecoveryEnabled,
+      clientRequestId: parsed.data.clientRequestId,
       images: parsed.data.imageUrls.length ? { create: parsed.data.imageUrls.map((imageUrl, sortOrder) => ({ imageUrl, sortOrder })) } : undefined,
-      },
+      }, publishToCommunity,
     );
 
-    return NextResponse.json({ success: true, message: result.communityPost ? "Item added and published to the Community Feed." : "Your item has been registered privately for QR protection.", data: result }, { status: 201 });
-  } catch {
-    return NextResponse.json({ success: false, message: "Could not create item." }, { status: 500 });
+    const message = result.communityPost
+      ? parsed.data.status === "FOUND" ? "Your found item is now visible in the Community Feed." : "Your item has been added and published to the Community Feed."
+      : "Your item has been registered privately for QR protection.";
+    return NextResponse.json({ success: true, message, data: { ...result, publicationStatus: result.communityPost?.status ?? "PRIVATE", privacyStatus: result.communityPost ? "PUBLIC_SAFE" : "PRIVATE", redirectTarget: "/dashboard/items" } }, { status: result.duplicate ? 200 : 201 });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Could not create item." }, { status: 400 });
   }
 }

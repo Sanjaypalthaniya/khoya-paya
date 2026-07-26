@@ -27,7 +27,7 @@ export default function FeatureShowcase() {
                 <small>Recovery workspace</small>
                 <h3>My Items</h3>
               </div>
-              <button>Lost Mode On</button>
+              <button type="button">Lost Mode On</button>
             </div>
             <div className="dash-grid">
               <div className="item-card active">Laptop Bag <small>QR active</small></div>

@@ -30,6 +30,9 @@ function getTransporter() {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
   });
 }
 
@@ -51,13 +54,18 @@ export async function sendEmail(payload: EmailPayload) {
     throw new Error("SMTP is not configured.");
   }
 
-  return getTransporter().sendMail({
-    from: process.env.SMTP_FROM,
-    to: payload.to,
-    subject: payload.subject,
-    html: payload.html,
-    text: payload.text,
-  });
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await getTransporter().sendMail({ from: process.env.SMTP_FROM, to: payload.to, subject: payload.subject, html: payload.html, text: payload.text });
+    } catch (error) {
+      lastError = error;
+      const code = typeof error === "object" && error && "responseCode" in error ? Number(error.responseCode) : 0;
+      if ((code >= 400 && code < 500) || attempt === 3) break;
+      await new Promise(resolve => setTimeout(resolve, attempt * 250));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("Email delivery failed.");
 }
 
 export async function sendFinderMessageEmail(payload: FinderMessageEmailPayload) {

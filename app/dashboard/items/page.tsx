@@ -12,9 +12,9 @@ export default async function DashboardItemsPage() {
   const user = await getCurrentUser();
   const items = user
     ? await prisma.item.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, deletedAt: null },
         orderBy: { createdAt: "desc" },
-        include: { qrCode: { select: { id: true } } },
+        include: { qrCode: { select: { id: true } }, communityPost: { select: { id: true, status: true } } },
       })
     : [];
 

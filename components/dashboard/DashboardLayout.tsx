@@ -10,9 +10,11 @@ type DashboardLayoutProps = { active: string; children: ReactNode };
 
 const pageCopy: Record<string, [string, string]> = {
   "/dashboard": ["Overview", "A clear view of your protected items and recent recovery activity."],
+  "/dashboard/feed": ["Community Feed", "Discover nearby reports, share useful information, and help belongings find their way home."],
   "/dashboard/items": ["My Items", "Manage every protected item and its recovery status."],
   "/dashboard/items/add": ["Add Item", "Register a valuable and make it ready for safe recovery."],
   "/dashboard/community-posts": ["Community Posts", "Manage your published posts and drafts."],
+  "/dashboard/claims": ["Claims & Recoveries", "Manage private verification, safe returns, handovers, rewards, and disputes."],
   "/dashboard/bulk-upload": ["Bulk Upload", "Import and protect multiple items in one workflow."],
   "/dashboard/bulk-qr": ["Bulk QR", "Generate recovery codes for multiple items."],
   "/dashboard/bulk-history": ["Bulk History", "Review previous imports and their results."],
@@ -40,7 +42,7 @@ export default async function DashboardLayout({ active, children }: DashboardLay
   const itemLimit = subscription?.plan.itemLimit ?? 2;
 
   return (
-    <div className="dashboard-shell dashboard-placeholder">
+    <div className="dashboard-shell dashboard-product-shell">
       <DashboardSidebar active={active} user={user} planName={planName} itemCount={itemCount} itemLimit={itemLimit} />
       <div className="dash-main">
         <header className="dashboard-header">

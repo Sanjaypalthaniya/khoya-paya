@@ -16,6 +16,7 @@ enum ItemStatus {
   SAFE
   LOST
   FOUND
+  MISSING
   RECOVERED
 }
 
@@ -45,6 +46,13 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+enum WebhookProcessingStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  IGNORED
 }
 
 enum NotificationType {
@@ -255,11 +263,13 @@ enum CommunityReactionType {
   FOUND_IT
   CELEBRATE
 }
+
 enum CommentReactionType {
   LIKE
   HELPFUL
   CELEBRATE
 }
+
 enum CommunityCommentStatus {
   ACTIVE
   EDITED
@@ -267,12 +277,14 @@ enum CommunityCommentStatus {
   HIDDEN
   REMOVED
 }
+
 enum FollowStatus {
   ACTIVE
   PENDING
   BLOCKED
   REMOVED
 }
+
 enum CommunityShareType {
   COPY_LINK
   NATIVE_SHARE
@@ -280,14 +292,20 @@ enum CommunityShareType {
   INTERNAL_SHARE
   OTHER
 }
+
 enum CommunityReportTargetType {
   POST
   COMMENT
   USER
 }
+
 enum CommunityReportReason {
   SPAM
   FRAUD
+  WRONG_CATEGORY
+  ADULT_CONTENT
+  VIOLENCE
+  COPYRIGHT
   WRONG_INFORMATION
   HARASSMENT
   UNSAFE_CONTENT
@@ -298,6 +316,7 @@ enum CommunityReportReason {
   SCAM_OR_PAYMENT_REQUEST
   OTHER
 }
+
 enum CommunityReportStatus {
   OPEN
   UNDER_REVIEW
@@ -305,6 +324,36 @@ enum CommunityReportStatus {
   DISMISSED
   ACTION_TAKEN
 }
+
+enum ModerationTargetType {
+  POST
+  COMMENT
+  MEDIA
+}
+
+enum ModerationDecision {
+  APPROVED
+  UNDER_REVIEW
+  REJECTED
+}
+
+enum ModerationSource {
+  LOCAL_RULES
+  SELF_HOSTED
+  COMMUNITY
+  ADMIN
+}
+
+enum ModerationActionType {
+  APPROVE
+  REJECT
+  RESTORE
+  HIDE
+  DELETE
+  WARN
+  SUSPEND
+}
+
 enum CommunityNotificationType {
   POST_REACTION
   COMMENT_CREATED
@@ -326,6 +375,7 @@ enum CommunityNotificationType {
   ADMIN_UPDATE
   SECURITY_ALERT
 }
+
 enum CommunityActivityType {
   POST_CREATED
   POST_PUBLISHED
@@ -343,120 +393,328 @@ enum CommunityActivityType {
   POST_SHARED
   REPORT_CREATED
 }
+
 enum CommunityActivityVisibility {
   PUBLIC
   PRIVATE
   INTERNAL
 }
 
+enum LocationPrecision {
+  COUNTRY
+  STATE
+  CITY
+  AREA
+  APPROXIMATE
+  EXACT_PRIVATE
+}
+
+enum TrustLevel {
+  NEW_MEMBER
+  ACTIVE_MEMBER
+  TRUSTED_HELPER
+  COMMUNITY_CHAMPION
+  COMMUNITY_HERO
+}
+
+enum CommunityPointStatus {
+  PENDING
+  CONFIRMED
+  REVERSED
+  EXPIRED
+}
+
+enum BadgeCategory {
+  ACTIVITY
+  TRUST
+  ACHIEVEMENT
+  MEMBERSHIP
+  VERIFICATION
+  ORGANIZATION
+  ADMINISTRATIVE
+}
+
+enum BadgeCriteriaType {
+  POINTS
+  TRUST_SCORE
+  VERIFIED_RETURNS
+  HELPFUL_COMMENTS
+  PROFILE_COMPLETE
+  MANUAL
+}
+
+enum LeaderboardType {
+  TOP_HELPERS
+  VERIFIED_RETURNS
+  TRUST_SCORE
+  HELPFUL_CONTRIBUTORS
+  COMMUNITY_HERO
+  TOP_ORGANIZATIONS
+}
+
+enum LeaderboardPeriod {
+  WEEKLY
+  MONTHLY
+  ALL_TIME
+}
+
+enum LeaderboardLocationScope {
+  CITY
+  STATE
+  COUNTRY
+  GLOBAL
+}
+
+enum RecommendationTargetType {
+  POST
+  USER
+}
+
+enum RecommendationDismissalReason {
+  NOT_RELEVANT
+  ALREADY_SEEN
+  WRONG_LOCATION
+  WRONG_CATEGORY
+  DO_NOT_SHOW_USER
+  OTHER
+}
+
+enum ClaimType {
+  CLAIM_FOUND_ITEM
+  FOUND_LOST_ITEM
+  MISSING_PET_SIGHTING
+  DOCUMENT_OWNERSHIP_CLAIM
+  VEHICLE_OWNERSHIP_CLAIM
+  HELPFUL_LEAD
+}
+
+enum ClaimStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  NEEDS_MORE_INFORMATION
+  VERIFICATION_PENDING
+  VERIFIED
+  REJECTED
+  WITHDRAWN
+  EXPIRED
+  RETURN_ARRANGEMENT_PENDING
+  RETURN_ARRANGED
+  HANDOVER_PENDING
+  RETURNED
+  RECOVERY_CONFIRMED
+  DISPUTED
+  CANCELLED
+  CLOSED
+}
+
+enum ClaimAnswerType {
+  SHORT_TEXT
+  LONG_TEXT
+  NUMBER
+  MULTIPLE_CHOICE
+  BOOLEAN
+  DATE
+  COLOR
+  PARTIAL_IDENTIFIER
+  IMAGE_PROOF
+}
+
+enum ClaimAnswerReviewStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum ClaimEvidenceType {
+  IMAGE
+  DOCUMENT
+  RECEIPT
+  PET_PHOTO
+  PRODUCT_BOX
+  OWNERSHIP_SCREENSHOT
+  OTHER
+}
+
+enum ClaimEvidenceVisibility {
+  PARTICIPANTS
+  ADMIN_ONLY
+}
+
+enum ReturnArrangementStatus {
+  PROPOSED
+  ACCEPTED
+  CANCELLED
+  COMPLETED
+}
+
+enum RewardPromiseStatus {
+  NOT_OFFERED
+  PROMISED
+  ACKNOWLEDGED
+  WAIVED
+  FULFILLED_OUTSIDE_PLATFORM
+  CANCELLED
+  DISPUTED
+}
+
+enum RecoveryDisputeReason {
+  WRONG_ITEM
+  FALSE_CLAIM
+  ITEM_NOT_RETURNED
+  REWARD_DISAGREEMENT
+  HARASSMENT
+  UNSAFE_MEETUP
+  FRAUD_OR_PAYMENT_REQUEST
+  DAMAGED_ITEM
+  IDENTITY_MISMATCH
+  OTHER
+}
+
+enum RecoveryDisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  NEEDS_INFORMATION
+  RESOLVED
+  DISMISSED
+  ACTION_TAKEN
+}
+
+enum RecoveryDisputePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model User {
-  id                         String                    @id @default(cuid())
-  name                       String
-  email                      String                    @unique
-  phone                      String?
-  passwordHash               String
-  role                       UserRole                  @default(USER)
-  isBlocked                  Boolean                   @default(false)
-  emailAlertsEnabled         Boolean                   @default(true)
-  whatsappAlertsEnabled      Boolean                   @default(false)
-  smsAlertsEnabled           Boolean                   @default(false)
-  qrScanAlertsEnabled        Boolean                   @default(true)
-  finderMessageAlertsEnabled Boolean                   @default(true)
-  paymentAlertsEnabled       Boolean                   @default(true)
-  whatsappNumber             String?
-  smsNumber                  String?
-  createdAt                  DateTime                  @default(now())
-  updatedAt                  DateTime                  @updatedAt
-  emailVerifiedAt            DateTime?
-  mobileVerifiedAt           DateTime?
-  governmentIdVerifiedAt     DateTime?
-  premiumVerifiedUntil       DateTime?
-  verificationLevel          VerificationLevel?
-  trustScore                 Int                       @default(0)
-  lastActiveAt               DateTime?
-  items                      Item[]
-  subscriptions              Subscription[]
-  payments                   Payment[]
-  bulkImportLogs             BulkImportLog[]
-  notifications              Notification[]
-  ownedConversations         Conversation[]            @relation("ConversationOwner")
-  sentChatMessages           ChatMessage[]             @relation("ChatMessageSender")
-  verificationRequests       UserVerificationRequest[]
-  recoveryRequests           RecoveryRequest[]         @relation("RecoveryOwner")
-  communityPosts             CommunityPost[]
-  communityMedia             PostMedia[]
-  postReactions PostReaction[]
-  communityComments CommunityComment[]
-  commentReactions CommentReaction[]
-  savedPosts SavedPost[]
-  followers UserFollow[] @relation("FollowingUser")
-  following UserFollow[] @relation("FollowerUser")
-  communityShares CommunityShare[]
-  communityReports CommunityReport[] @relation("CommunityReporter")
-  reportsAgainstUser CommunityReport[] @relation("CommunityReportedUser")
-  communityNotifications CommunityNotification[] @relation("CommunityNotificationRecipient")
-  communityNotificationActions CommunityNotification[] @relation("CommunityNotificationActor")
+  id                              String                    @id @default(cuid())
+  name                            String
+  email                           String                    @unique
+  phone                           String?
+  passwordHash                    String
+  role                            UserRole                  @default(USER)
+  isBlocked                       Boolean                   @default(false)
+  moderationStrikeCount           Int                       @default(0)
+  postingRestrictedUntil          DateTime?
+  emailAlertsEnabled              Boolean                   @default(true)
+  whatsappAlertsEnabled           Boolean                   @default(false)
+  smsAlertsEnabled                Boolean                   @default(false)
+  qrScanAlertsEnabled             Boolean                   @default(true)
+  finderMessageAlertsEnabled      Boolean                   @default(true)
+  paymentAlertsEnabled            Boolean                   @default(true)
+  whatsappNumber                  String?
+  smsNumber                       String?
+  createdAt                       DateTime                  @default(now())
+  updatedAt                       DateTime                  @updatedAt
+  emailVerifiedAt                 DateTime?
+  mobileVerifiedAt                DateTime?
+  governmentIdVerifiedAt          DateTime?
+  premiumVerifiedUntil            DateTime?
+  verificationLevel               VerificationLevel?
+  trustScore                      Int                       @default(0)
+  lastActiveAt                    DateTime?
+  items                           Item[]
+  subscriptions                   Subscription[]
+  payments                        Payment[]
+  bulkImportLogs                  BulkImportLog[]
+  notifications                   Notification[]
+  ownedConversations              Conversation[]            @relation("ConversationOwner")
+  sentChatMessages                ChatMessage[]             @relation("ChatMessageSender")
+  verificationRequests            UserVerificationRequest[]
+  recoveryRequests                RecoveryRequest[]         @relation("RecoveryOwner")
+  communityPosts                  CommunityPost[]
+  communityMedia                  PostMedia[]
+  postReactions                   PostReaction[]
+  communityComments               CommunityComment[]
+  commentReactions                CommentReaction[]
+  savedPosts                      SavedPost[]
+  followers                       UserFollow[]              @relation("FollowingUser")
+  following                       UserFollow[]              @relation("FollowerUser")
+  communityShares                 CommunityShare[]
+  communityReports                CommunityReport[]         @relation("CommunityReporter")
+  reportsAgainstUser              CommunityReport[]         @relation("CommunityReportedUser")
+  communityNotifications          CommunityNotification[]   @relation("CommunityNotificationRecipient")
+  communityNotificationActions    CommunityNotification[]   @relation("CommunityNotificationActor")
   communityNotificationPreference NotificationPreference?
-  communityActivities CommunityActivity[] @relation("CommunityActivityActor")
-  communityTargetActivities CommunityActivity[] @relation("CommunityActivityTarget")
-  followerCount Int @default(0)
-  followingCount Int @default(0)
+  communityActivities             CommunityActivity[]       @relation("CommunityActivityActor")
+  communityTargetActivities       CommunityActivity[]       @relation("CommunityActivityTarget")
+  followerCount                   Int                       @default(0)
+  followingCount                  Int                       @default(0)
+  leaderboardOptOut               Boolean                   @default(false)
+  publicCity                      String?
+  publicState                     String?
+  publicCountry                   String?
+  trustProfile                    TrustProfile?
+  pointLedger                     CommunityPointLedger[]
+  userBadges                      UserBadge[]
+  userAchievements                UserAchievement[]
+  leaderboardSnapshots            LeaderboardSnapshot[]
+  searchHistory                   SearchHistory[]
+  recommendationDismissals        RecommendationDismissal[]
+  claimsRequested                 ClaimRequest[]            @relation("ClaimRequester")
+  claimsReceived                  ClaimRequest[]            @relation("ClaimRecipient")
 
   @@index([email])
+  @@index([postingRestrictedUntil])
 }
 
 model CommunityPost {
-  id                 String                     @id @default(cuid())
-  authorId           String
-  itemId             String?                    @unique
-  postType           CommunityPostType
-  itemCategory       CommunityItemCategory
-  title              String
-  description        String
-  status             CommunityPostStatus        @default(DRAFT)
-  visibility         CommunityVisibility        @default(PUBLIC)
-  rewardOffered      Boolean                    @default(false)
-  rewardAmount       Decimal?                   @db.Decimal(10, 2)
-  rewardCurrency     String                     @default("INR")
-  eventDate          DateTime?
-  publicLocationName String?
-  city               String?
-  state              String?
-  country            String?
-  postalCode         String?
-  publicLatitude     Decimal?                   @db.Decimal(9, 6)
-  publicLongitude    Decimal?                   @db.Decimal(9, 6)
-  privateLatitude    Decimal?                   @db.Decimal(9, 6)
-  privateLongitude   Decimal?                   @db.Decimal(9, 6)
-  contactPreference  CommunityContactPreference @default(PLATFORM_MESSAGE)
-  allowComments      Boolean                    @default(true)
-  allowSharing       Boolean                    @default(true)
-  isVerifiedPost     Boolean                    @default(false)
-  isPinned           Boolean                    @default(false)
-  moderationStatus   CommunityModerationStatus  @default(APPROVED)
-  moderationReason   String?
-  reactionCount      Int                        @default(0)
-  commentCount       Int                        @default(0)
-  shareCount         Int                        @default(0)
-  saveCount          Int                        @default(0)
-  viewCount          Int                        @default(0)
-  publishedAt        DateTime?
-  recoveredAt        DateTime?
-  closedAt           DateTime?
-  deletedAt          DateTime?
-  createdAt          DateTime                   @default(now())
-  updatedAt          DateTime                   @updatedAt
-  author             User                       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  item               Item?                      @relation(fields: [itemId], references: [id], onDelete: SetNull)
-  media              PostMedia[]
-  tags               CommunityPostTag[]
-  reactions PostReaction[]
-  comments CommunityComment[]
-  saves SavedPost[]
-  shares CommunityShare[]
-  reports CommunityReport[]
-  notifications CommunityNotification[]
-  activities CommunityActivity[]
+  id                   String                     @id @default(cuid())
+  authorId             String
+  itemId               String?                    @unique
+  postType             CommunityPostType
+  itemCategory         CommunityItemCategory
+  title                String
+  description          String
+  status               CommunityPostStatus        @default(DRAFT)
+  visibility           CommunityVisibility        @default(PUBLIC)
+  rewardOffered        Boolean                    @default(false)
+  rewardAmount         Decimal?                   @db.Decimal(10, 2)
+  rewardCurrency       String                     @default("INR")
+  eventDate            DateTime?
+  publicLocationName   String?
+  city                 String?
+  state                String?
+  country              String?
+  postalCode           String?
+  publicLatitude       Decimal?                   @db.Decimal(9, 6)
+  publicLongitude      Decimal?                   @db.Decimal(9, 6)
+  privateLatitude      Decimal?                   @db.Decimal(9, 6)
+  privateLongitude     Decimal?                   @db.Decimal(9, 6)
+  locationPrecision    LocationPrecision          @default(CITY)
+  trendingScore        Float                      @default(0)
+  trendingCalculatedAt DateTime?
+  contactPreference    CommunityContactPreference @default(PLATFORM_MESSAGE)
+  allowComments        Boolean                    @default(true)
+  allowSharing         Boolean                    @default(true)
+  isVerifiedPost       Boolean                    @default(false)
+  isPinned             Boolean                    @default(false)
+  moderationStatus     CommunityModerationStatus  @default(APPROVED)
+  moderationReason     String?
+  reactionCount        Int                        @default(0)
+  commentCount         Int                        @default(0)
+  shareCount           Int                        @default(0)
+  saveCount            Int                        @default(0)
+  viewCount            Int                        @default(0)
+  publishedAt          DateTime?
+  recoveredAt          DateTime?
+  closedAt             DateTime?
+  deletedAt            DateTime?
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+  author               User                       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  item                 Item?                      @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  media                PostMedia[]
+  tags                 CommunityPostTag[]
+  reactions            PostReaction[]
+  comments             CommunityComment[]
+  saves                SavedPost[]
+  shares               CommunityShare[]
+  reports              CommunityReport[]
+  notifications        CommunityNotification[]
+  activities           CommunityActivity[]
+  claims               ClaimRequest[]
 
   @@index([authorId, createdAt])
   @@index([status, visibility, moderationStatus, publishedAt, id])
@@ -464,6 +722,7 @@ model CommunityPost {
   @@index([itemCategory, publishedAt])
   @@index([city, state, publishedAt])
   @@index([recoveredAt])
+  @@index([trendingScore, publishedAt])
   @@index([deletedAt])
 }
 
@@ -483,6 +742,9 @@ model PostMedia {
   altText          String
   sortOrder        Int                       @default(0)
   processingStatus PostMediaProcessingStatus @default(READY)
+  moderationStatus CommunityModerationStatus @default(PENDING)
+  moderationReason String?
+  contentHash      String?
   createdAt        DateTime                  @default(now())
   updatedAt        DateTime                  @updatedAt
   deletedAt        DateTime?
@@ -513,176 +775,234 @@ model CommunityPostTag {
 }
 
 model PostReaction {
-  id String @id @default(cuid())
-  postId String
-  userId String
+  id           String                @id @default(cuid())
+  postId       String
+  userId       String
   reactionType CommunityReactionType
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  post         CommunityPost         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([postId, userId])
   @@index([postId, reactionType])
   @@index([userId, createdAt])
 }
+
 model CommunityComment {
-  id String @id @default(cuid())
-  postId String
-  authorId String
-  parentId String?
-  rootCommentId String?
-  content String
-  status CommunityCommentStatus @default(ACTIVE)
-  depth Int @default(0)
-  editedAt DateTime?
-  deletedAt DateTime?
-  reactionCount Int @default(0)
-  replyCount Int @default(0)
+  id               String                    @id @default(cuid())
+  postId           String
+  authorId         String
+  parentId         String?
+  rootCommentId    String?
+  content          String
+  status           CommunityCommentStatus    @default(ACTIVE)
+  depth            Int                       @default(0)
+  editedAt         DateTime?
+  deletedAt        DateTime?
+  reactionCount    Int                       @default(0)
+  replyCount       Int                       @default(0)
   moderationStatus CommunityModerationStatus @default(APPROVED)
   moderationReason String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent CommunityComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
-  replies CommunityComment[] @relation("CommentReplies")
-  reactions CommentReaction[]
-  reports CommunityReport[]
-  notifications CommunityNotification[]
-  activities CommunityActivity[]
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  post             CommunityPost             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author           User                      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent           CommunityComment?         @relation("CommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies          CommunityComment[]        @relation("CommentReplies")
+  reactions        CommentReaction[]
+  reports          CommunityReport[]
+  notifications    CommunityNotification[]
+  activities       CommunityActivity[]
+
   @@index([postId, parentId, createdAt, id])
   @@index([authorId, createdAt])
   @@index([rootCommentId])
 }
+
 model CommentReaction {
-  id String @id @default(cuid())
-  commentId String
-  userId String
+  id           String              @id @default(cuid())
+  commentId    String
+  userId       String
   reactionType CommentReactionType
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  comment CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  comment      CommunityComment    @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([commentId, userId])
   @@index([commentId, reactionType])
   @@index([userId, createdAt])
 }
+
 model SavedPost {
-  id String @id @default(cuid())
-  userId String
-  postId String
-  createdAt DateTime @default(now())
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String        @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@unique([userId, postId])
   @@index([userId, createdAt, id])
 }
+
 model UserFollow {
-  id String @id @default(cuid())
-  followerId String
+  id          String       @id @default(cuid())
+  followerId  String
   followingId String
-  status FollowStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  follower User @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("FollowingUser", fields: [followingId], references: [id], onDelete: Cascade)
+  status      FollowStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  follower    User         @relation("FollowerUser", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User         @relation("FollowingUser", fields: [followingId], references: [id], onDelete: Cascade)
+
   @@unique([followerId, followingId])
   @@index([followerId, status, createdAt])
   @@index([followingId, status, createdAt])
 }
+
 model CommunityShare {
-  id String @id @default(cuid())
-  postId String
-  userId String?
+  id                   String             @id @default(cuid())
+  postId               String
+  userId               String?
   anonymousSessionHash String?
-  shareType CommunityShareType
-  destination String?
-  dedupeKey String?
-  createdAt DateTime @default(now())
-  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  shareType            CommunityShareType
+  destination          String?
+  dedupeKey            String?
+  createdAt            DateTime           @default(now())
+  post                 CommunityPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user                 User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   @@index([postId, createdAt])
   @@index([userId, createdAt])
   @@index([dedupeKey])
 }
+
 model CommunityReport {
-  id String @id @default(cuid())
-  reporterId String
-  targetType CommunityReportTargetType
-  targetPostId String?
+  id              String                    @id @default(cuid())
+  reporterId      String
+  targetType      CommunityReportTargetType
+  targetPostId    String?
   targetCommentId String?
-  targetUserId String?
-  reason CommunityReportReason
-  details String?
-  status CommunityReportStatus @default(OPEN)
+  targetUserId    String?
+  reason          CommunityReportReason
+  details         String?
+  status          CommunityReportStatus     @default(OPEN)
   assignedAdminId String?
-  resolution String?
-  resolvedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reporter User @relation("CommunityReporter", fields: [reporterId], references: [id], onDelete: Cascade)
-  targetPost CommunityPost? @relation(fields: [targetPostId], references: [id], onDelete: SetNull)
-  targetComment CommunityComment? @relation(fields: [targetCommentId], references: [id], onDelete: SetNull)
-  targetUser User? @relation("CommunityReportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  resolution      String?
+  resolvedAt      DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  reporter        User                      @relation("CommunityReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetPost      CommunityPost?            @relation(fields: [targetPostId], references: [id], onDelete: SetNull)
+  targetComment   CommunityComment?         @relation(fields: [targetCommentId], references: [id], onDelete: SetNull)
+  targetUser      User?                     @relation("CommunityReportedUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  @@unique([reporterId, targetType, targetPostId, targetCommentId, targetUserId])
   @@index([reporterId, createdAt])
   @@index([targetType, status, createdAt])
   @@index([targetPostId])
   @@index([targetCommentId])
   @@index([targetUserId])
 }
+
+model ModerationCase {
+  id           String               @id @default(cuid())
+  targetType   ModerationTargetType
+  targetId     String
+  ownerId      String?
+  decision     ModerationDecision
+  source       ModerationSource     @default(LOCAL_RULES)
+  provider     String
+  riskScore    Float
+  reasonCode   String
+  userMessage  String
+  signals      Json?
+  contentHash  String?
+  modelVersion String?
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  actions      ModerationAction[]
+
+  @@index([decision, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([ownerId, createdAt])
+  @@index([contentHash])
+}
+
+model ModerationAction {
+  id        String               @id @default(cuid())
+  caseId    String
+  adminId   String
+  action    ModerationActionType
+  reason    String
+  createdAt DateTime             @default(now())
+  case      ModerationCase       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, createdAt])
+  @@index([adminId, createdAt])
+}
+
 model CommunityNotification {
-  id String @id @default(cuid())
-  recipientId String
-  actorId String?
-  type CommunityNotificationType
-  postId String?
-  commentId String?
+  id            String                    @id @default(cuid())
+  recipientId   String
+  actorId       String?
+  type          CommunityNotificationType
+  postId        String?
+  commentId     String?
   relatedUserId String?
-  activityId String?
-  titleKey String
-  messageKey String
-  metadata Json?
-  dedupeKey String?
-  isRead Boolean @default(false)
-  readAt DateTime?
-  createdAt DateTime @default(now())
-  deletedAt DateTime?
-  recipient User @relation("CommunityNotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-  actor User? @relation("CommunityNotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
-  post CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment CommunityComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  activityId    String?
+  titleKey      String
+  messageKey    String
+  metadata      Json?
+  dedupeKey     String?
+  isRead        Boolean                   @default(false)
+  readAt        DateTime?
+  createdAt     DateTime                  @default(now())
+  deletedAt     DateTime?
+  recipient     User                      @relation("CommunityNotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor         User?                     @relation("CommunityNotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  post          CommunityPost?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment       CommunityComment?         @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
   @@unique([recipientId, dedupeKey])
   @@index([recipientId, isRead, createdAt, id])
 }
+
 model NotificationPreference {
-  id String @id @default(cuid())
-  userId String @unique
-  inAppReactions Boolean @default(true)
-  inAppComments Boolean @default(true)
-  inAppReplies Boolean @default(true)
-  inAppFollows Boolean @default(true)
-  inAppMentions Boolean @default(true)
-  inAppItemUpdates Boolean @default(true)
-  emailCommunity Boolean @default(false)
-  pushCommunity Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  inAppReactions   Boolean  @default(true)
+  inAppComments    Boolean  @default(true)
+  inAppReplies     Boolean  @default(true)
+  inAppFollows     Boolean  @default(true)
+  inAppMentions    Boolean  @default(true)
+  inAppItemUpdates Boolean  @default(true)
+  emailCommunity   Boolean  @default(false)
+  pushCommunity    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model CommunityActivity {
-  id String @id @default(cuid())
-  actorId String
+  id           String                      @id @default(cuid())
+  actorId      String
   activityType CommunityActivityType
-  postId String?
-  commentId String?
+  postId       String?
+  commentId    String?
   targetUserId String?
-  metadata Json?
-  visibility CommunityActivityVisibility @default(PUBLIC)
-  createdAt DateTime @default(now())
-  actor User @relation("CommunityActivityActor", fields: [actorId], references: [id], onDelete: Cascade)
-  post CommunityPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
-  comment CommunityComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  targetUser User? @relation("CommunityActivityTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+  metadata     Json?
+  visibility   CommunityActivityVisibility @default(PUBLIC)
+  createdAt    DateTime                    @default(now())
+  actor        User                        @relation("CommunityActivityActor", fields: [actorId], references: [id], onDelete: Cascade)
+  post         CommunityPost?              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment      CommunityComment?           @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  targetUser   User?                       @relation("CommunityActivityTarget", fields: [targetUserId], references: [id], onDelete: SetNull)
+
   @@index([actorId, createdAt, id])
   @@index([postId, createdAt])
 }
@@ -712,6 +1032,8 @@ model Item {
   lastSeenLocation      String?
   publicSearchVisible   Boolean                @default(false)
   qrRecoveryEnabled     Boolean                @default(true)
+  clientRequestId       String?                @unique
+  deletedAt             DateTime?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -726,9 +1048,11 @@ model Item {
   verificationQuestions VerificationQuestion[]
   recoveryRequests      RecoveryRequest[]
   communityPost         CommunityPost?
+  claims                ClaimRequest[]
 
   @@index([userId])
   @@index([status])
+  @@index([deletedAt])
   @@index([category, status, publicSearchVisible])
   @@index([brand, color])
 }
@@ -818,6 +1142,7 @@ model Conversation {
   finderIdentity        FinderIdentity?                @relation(fields: [finderIdentityId], references: [id], onDelete: SetNull)
   verificationQuestions VerificationQuestion[]
   recoveryRequests      RecoveryRequest[]
+  claims                ClaimRequest[]
 
   @@index([ownerId, lastMessageAt])
   @@index([itemId])
@@ -1028,6 +1353,206 @@ model RecoveryTimelineEvent {
   @@index([recoveryRequestId, createdAt])
 }
 
+model ClaimRequest {
+  id                   String                      @id @default(cuid())
+  publicClaimId        String                      @unique
+  clientRequestId      String
+  claimType            ClaimType
+  status               ClaimStatus                 @default(DRAFT)
+  postId               String
+  itemId               String?
+  requesterId          String
+  recipientId          String
+  conversationId       String?
+  publicMessage        String
+  privateMessageCipher String?
+  approximateLocation  String?
+  eventDate            DateTime?
+  contactPreference    String                      @default("PLATFORM_MESSAGE")
+  verificationScore    Int                         @default(0)
+  verificationDecision String?
+  verificationReason   String?
+  submittedAt          DateTime?
+  reviewedAt           DateTime?
+  verifiedAt           DateTime?
+  rejectedAt           DateTime?
+  withdrawnAt          DateTime?
+  expiresAt            DateTime?
+  returnArrangedAt     DateTime?
+  returnedAt           DateTime?
+  recoveredAt          DateTime?
+  disputedAt           DateTime?
+  closedAt             DateTime?
+  deletedAt            DateTime?
+  createdAt            DateTime                    @default(now())
+  updatedAt            DateTime                    @updatedAt
+  post                 CommunityPost               @relation(fields: [postId], references: [id], onDelete: Cascade)
+  item                 Item?                       @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  requester            User                        @relation("ClaimRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient            User                        @relation("ClaimRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  conversation         Conversation?               @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  questions            ClaimVerificationQuestion[]
+  evidence             ClaimEvidence[]
+  activities           ClaimActivity[]
+  returnArrangement    ClaimReturnArrangement?
+  rewardPromise        RewardPromise?
+  disputes             RecoveryDispute[]
+  successConsent       ClaimSuccessConsent?
+
+  @@unique([requesterId, clientRequestId])
+  @@index([requesterId, status, updatedAt])
+  @@index([recipientId, status, updatedAt])
+  @@index([postId, status])
+  @@index([itemId, status])
+  @@index([expiresAt])
+}
+
+model ClaimVerificationQuestion {
+  id                 String                    @id @default(cuid())
+  claimId            String
+  questionCode       String?
+  questionText       String
+  answerType         ClaimAnswerType
+  isSensitive        Boolean                   @default(true)
+  isRequired         Boolean                   @default(true)
+  verificationWeight Int                       @default(10)
+  createdById        String
+  sortOrder          Int                       @default(0)
+  createdAt          DateTime                  @default(now())
+  claim              ClaimRequest              @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  answers            ClaimVerificationAnswer[]
+
+  @@index([claimId, sortOrder])
+}
+
+model ClaimVerificationAnswer {
+  id           String                    @id @default(cuid())
+  questionId   String
+  answeredById String
+  answerCipher String
+  answerHash   String?
+  reviewStatus ClaimAnswerReviewStatus   @default(PENDING)
+  scoreAwarded Int                       @default(0)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  question     ClaimVerificationQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, answeredById])
+  @@index([answeredById, createdAt])
+}
+
+model ClaimEvidence {
+  id               String                    @id @default(cuid())
+  claimId          String
+  uploadedById     String
+  evidenceType     ClaimEvidenceType
+  description      String?
+  url              String
+  storageKey       String?
+  mimeType         String
+  fileSize         Int
+  contentHash      String
+  moderationStatus CommunityModerationStatus @default(PENDING)
+  visibility       ClaimEvidenceVisibility   @default(PARTICIPANTS)
+  deletedAt        DateTime?
+  createdAt        DateTime                  @default(now())
+  claim            ClaimRequest              @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([claimId, createdAt])
+  @@index([uploadedById, createdAt])
+}
+
+model ClaimActivity {
+  id          String       @id @default(cuid())
+  claimId     String
+  actorId     String?
+  type        String
+  title       String
+  description String
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+  claim       ClaimRequest @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@index([claimId, createdAt])
+}
+
+model ClaimReturnArrangement {
+  id                              String                  @id @default(cuid())
+  claimId                         String                  @unique
+  status                          ReturnArrangementStatus @default(PROPOSED)
+  proposedById                    String
+  approximatePlace                String
+  scheduledAt                     DateTime
+  safetyAcknowledgedByRequesterAt DateTime?
+  safetyAcknowledgedByRecipientAt DateTime?
+  handoverCodeHash                String?
+  handoverCodeExpiresAt           DateTime?
+  handoverAttempts                Int                     @default(0)
+  requesterConfirmedAt            DateTime?
+  recipientConfirmedAt            DateTime?
+  createdAt                       DateTime                @default(now())
+  updatedAt                       DateTime                @updatedAt
+  claim                           ClaimRequest            @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+model RewardPromise {
+  id                         String              @id @default(cuid())
+  claimId                    String              @unique
+  promisedById               String
+  recipientId                String
+  amount                     Decimal?            @db.Decimal(10, 2)
+  currency                   String              @default("INR")
+  status                     RewardPromiseStatus @default(NOT_OFFERED)
+  note                       String?
+  acknowledgedByRecipientAt  DateTime?
+  fulfilledOutsidePlatformAt DateTime?
+  waivedAt                   DateTime?
+  cancelledAt                DateTime?
+  disputedAt                 DateTime?
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @updatedAt
+  claim                      ClaimRequest        @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+model ClaimSuccessConsent {
+  id                 String       @id @default(cuid())
+  claimId            String       @unique
+  requesterConsent   Boolean?
+  recipientConsent   Boolean?
+  requesterAnonymous Boolean      @default(true)
+  recipientAnonymous Boolean      @default(true)
+  allowCity          Boolean      @default(false)
+  allowApprovedPhoto Boolean      @default(false)
+  successPostId      String?      @unique
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  claim              ClaimRequest @relation(fields: [claimId], references: [id], onDelete: Cascade)
+}
+
+model RecoveryDispute {
+  id              String                  @id @default(cuid())
+  publicDisputeId String                  @unique
+  claimId         String
+  openedById      String
+  targetUserId    String
+  reason          RecoveryDisputeReason
+  description     String
+  status          RecoveryDisputeStatus   @default(OPEN)
+  priority        RecoveryDisputePriority @default(MEDIUM)
+  assignedAdminId String?
+  resolution      String?
+  resolvedAt      DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  claim           ClaimRequest            @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@unique([claimId, openedById, reason, status])
+  @@index([status, priority, createdAt])
+  @@index([claimId, createdAt])
+}
+
 model AbuseReport {
   id           String         @id @default(cuid())
   itemId       String?
@@ -1110,6 +1635,26 @@ model Payment {
   @@index([createdAt])
 }
 
+model PaymentWebhookEvent {
+  id              String                  @id @default(cuid())
+  provider        String
+  providerEventId String
+  eventType       String
+  payloadHash     String
+  status          WebhookProcessingStatus @default(RECEIVED)
+  attemptCount    Int                     @default(1)
+  receivedAt      DateTime                @default(now())
+  processedAt     DateTime?
+  failedAt        DateTime?
+  lastError       String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@unique([provider, providerEventId])
+  @@index([status, receivedAt])
+  @@index([eventType, receivedAt])
+}
+
 model BulkImportLog {
   id            String   @id @default(cuid())
   userId        String
@@ -1142,4 +1687,159 @@ model Notification {
   @@index([type])
   @@index([isRead])
   @@index([createdAt])
+}
+
+model SearchHistory {
+  id              String   @id @default(cuid())
+  userId          String
+  query           String
+  normalizedQuery String
+  filters         Json?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model SearchAggregate {
+  id              String   @id @default(cuid())
+  normalizedQuery String
+  periodKey       String
+  city            String?
+  country         String?
+  searchCount     Int      @default(0)
+  resultCount     Int      @default(0)
+  lastSearchedAt  DateTime @default(now())
+
+  @@unique([normalizedQuery, periodKey, city, country])
+  @@index([periodKey, searchCount])
+}
+
+model TrustProfile {
+  id                     String     @id @default(cuid())
+  userId                 String     @unique
+  trustScore             Int        @default(0)
+  trustLevel             TrustLevel @default(NEW_MEMBER)
+  pointsBalance          Int        @default(0)
+  lifetimePoints         Int        @default(0)
+  successfulReturns      Int        @default(0)
+  verifiedReturns        Int        @default(0)
+  helpfulComments        Int        @default(0)
+  validReports           Int        @default(0)
+  accountAgeScore        Int        @default(0)
+  profileCompletionScore Int        @default(0)
+  verificationScore      Int        @default(0)
+  moderationPenalty      Int        @default(0)
+  lastCalculatedAt       DateTime?
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+  user                   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([trustScore])
+  @@index([trustLevel])
+}
+
+model CommunityPointLedger {
+  id             String               @id @default(cuid())
+  userId         String
+  activityType   String
+  points         Int
+  referenceType  String?
+  referenceId    String?
+  reason         String
+  status         CommunityPointStatus @default(CONFIRMED)
+  idempotencyKey String               @unique
+  createdAt      DateTime             @default(now())
+  reversedAt     DateTime?
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, createdAt])
+}
+
+model BadgeDefinition {
+  id            String            @id @default(cuid())
+  code          String            @unique
+  name          String
+  description   String
+  icon          String
+  category      BadgeCategory
+  criteriaType  BadgeCriteriaType
+  criteriaValue Int?
+  isActive      Boolean           @default(true)
+  isManual      Boolean           @default(false)
+  priority      Int               @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  awards        UserBadge[]
+}
+
+model UserBadge {
+  id          String          @id @default(cuid())
+  userId      String
+  badgeId     String
+  awardedBy   String?
+  reason      String
+  referenceId String?
+  awardedAt   DateTime        @default(now())
+  revokedAt   DateTime?
+  expiresAt   DateTime?
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge       BadgeDefinition @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId, awardedAt])
+}
+
+model AchievementDefinition {
+  id           String            @id @default(cuid())
+  code         String            @unique
+  name         String
+  description  String
+  target       Int
+  isActive     Boolean           @default(true)
+  achievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String                @id @default(cuid())
+  userId        String
+  achievementId String
+  progress      Int                   @default(0)
+  completedAt   DateTime?
+  updatedAt     DateTime              @updatedAt
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   AchievementDefinition @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model LeaderboardSnapshot {
+  id              String                   @id @default(cuid())
+  userId          String
+  leaderboardType LeaderboardType
+  periodType      LeaderboardPeriod
+  periodKey       String
+  locationScope   LeaderboardLocationScope @default(GLOBAL)
+  locationValue   String                   @default("")
+  score           Float
+  rank            Int
+  calculatedAt    DateTime                 @default(now())
+  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, leaderboardType, periodType, periodKey, locationScope, locationValue])
+  @@index([leaderboardType, periodType, periodKey, locationScope, locationValue, rank])
+}
+
+model RecommendationDismissal {
+  id         String                        @id @default(cuid())
+  userId     String
+  targetType RecommendationTargetType
+  targetId   String
+  reason     RecommendationDismissalReason
+  createdAt  DateTime                      @default(now())
+  expiresAt  DateTime?
+  user       User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetType, targetId])
+  @@index([userId, expiresAt])
 }

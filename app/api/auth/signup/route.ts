@@ -1,8 +1,14 @@
 import { z } from "zod";
-import { errorResponse, rateLimitResponse, successResponse, validationErrorResponse } from "@/lib/api-response";
+import {
+  errorResponse,
+  rateLimitResponse,
+  successResponse,
+  validationErrorResponse,
+} from "@/lib/api-response";
 import { hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { moderateText } from "@/lib/moderation/engine";
 
 const signupSchema = z
   .object({
@@ -10,7 +16,9 @@ const signupSchema = z
     email: z.string().trim().email("Valid email is required").toLowerCase(),
     phone: z.string().trim().optional(),
     password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Confirm password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Confirm password must be at least 8 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -26,6 +34,13 @@ export async function POST(request: Request) {
 
     if (!parsed.success) {
       return validationErrorResponse(parsed.error);
+    }
+
+    if (moderateText({ text: parsed.data.name }).decision !== "APPROVED") {
+      return errorResponse(
+        "Choose a respectful account name without abusive or promotional content.",
+        422,
+      );
     }
 
     const existingUser = await prisma.user.findUnique({

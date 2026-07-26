@@ -1,6 +1,6 @@
 "use client";
 
-import { DragEvent, FormEvent, useState } from "react";
+import { DragEvent, FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { contactPreferences, itemCategories, itemStatusValues } from "@/lib/validations/item";
 import { Check, ImagePlus, LockKeyhole, ShieldCheck, Trash2, UploadCloud } from "lucide-react";
@@ -18,12 +18,14 @@ type ItemFormProps = {
     contactPreference: string;
     status: string;
     brand?: string | null; modelNumber?: string | null; color?: string | null; identifyingMarks?: string | null;
-    lastSeenLocation?: string | null; publicSearchVisible?: boolean; qrRecoveryEnabled?: boolean;
+    lastSeenLocation?: string | null; publicSearchVisible?: boolean; qrRecoveryEnabled?: boolean; lostDate?: string | Date | null;
   };
 };
 
 export default function ItemForm({ mode, item }: ItemFormProps) {
   const router = useRouter();
+  const clientRequestId = useRef<string | null>(null);
+  const initialStatus = item?.status ?? "SAFE";
   const [form, setForm] = useState({
     itemName: item?.itemName ?? "",
     category: item?.category ?? "Bag",
@@ -31,9 +33,10 @@ export default function ItemForm({ mode, item }: ItemFormProps) {
     imageUrl: item?.imageUrl ?? "",
     rewardAmount: item?.rewardAmount ?? "",
     contactPreference: item?.contactPreference ?? "Message Only",
-    status: item?.status ?? "SAFE",
+    status: initialStatus,
     brand: item?.brand ?? "", modelNumber: item?.modelNumber ?? "", color: item?.color ?? "", identifyingMarks: item?.identifyingMarks ?? "",
-    lastSeenLocation: item?.lastSeenLocation ?? "", publicSearchVisible: item?.publicSearchVisible ?? false, qrRecoveryEnabled: item?.qrRecoveryEnabled ?? true,
+    lastSeenLocation: item?.lastSeenLocation ?? "", lostDate: item?.lostDate ? new Date(item.lostDate).toISOString().slice(0, 10) : "",
+    publishToCommunity: ["LOST", "FOUND", "MISSING"].includes(initialStatus), publicSearchVisible: item?.publicSearchVisible ?? false, qrRecoveryEnabled: item?.qrRecoveryEnabled ?? true,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -48,6 +51,15 @@ export default function ItemForm({ mode, item }: ItemFormProps) {
     event.preventDefault();
     setError("");
     setIsLoading(true);
+    if (!clientRequestId.current) {
+      const bytes = new Uint8Array(16);
+      if (globalThis.crypto?.getRandomValues) globalThis.crypto.getRandomValues(bytes);
+      else for (let index = 0; index < bytes.length; index++) bytes[index] = Math.floor(Math.random() * 256);
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+      clientRequestId.current = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+    }
 
     try {
       const response = await fetch(mode === "create" ? "/api/items" : `/api/items/${item?.id}`, {
@@ -56,6 +68,8 @@ export default function ItemForm({ mode, item }: ItemFormProps) {
         body: JSON.stringify({
           ...form,
           rewardAmount: form.rewardAmount ? Number(form.rewardAmount) : null,
+          lostDate: form.lostDate || null,
+          clientRequestId: mode === "create" ? clientRequestId.current : undefined,
         }),
       });
       const data = await response.json().catch(() => null);
@@ -143,10 +157,29 @@ export default function ItemForm({ mode, item }: ItemFormProps) {
       </section>
 
       <section className="form-section-card">
-        <div className="form-section-head"><span><LockKeyhole size={20} /></span><div><h3>Security</h3><p>Set the item’s current recovery status.</p></div><small>04</small></div>
-        <label>Status<select value={form.status} onChange={(event) => updateField("status", event.target.value)}>{itemStatusValues.map((status) => <option key={status}>{status}</option>)}</select><em><LockKeyhole size={14} /> Only you can change this status from your dashboard.</em></label>
-        <label className="mt-3">Last seen location <small>Optional</small><input value={form.lastSeenLocation} onChange={(event) => updateField("lastSeenLocation", event.target.value)} /></label>
-        <div className="form-check-row"><label><input type="checkbox" checked={form.publicSearchVisible} onChange={(event) => updateField("publicSearchVisible", event.target.checked)} /> Show this item in public lost-item search</label><label><input type="checkbox" checked={form.qrRecoveryEnabled} onChange={(event) => updateField("qrRecoveryEnabled", event.target.checked)} /> Enable QR recovery</label></div>
+        <div className="form-section-head"><span><LockKeyhole size={20} /></span><div><h3>Privacy &amp; current status</h3><p>Choose whether this item needs community help.</p></div><small>04</small></div>
+        <label>What is the current status of this item?<select value={form.status} onChange={(event) => { const status = event.target.value; setForm((current) => ({ ...current, status, publishToCommunity: ["LOST", "FOUND", "MISSING"].includes(status) })); }}>{itemStatusValues.map((status) => <option key={status} value={status}>{status === "SAFE" ? "Safe / Only Register for QR Protection" : status.charAt(0) + status.slice(1).toLowerCase()}</option>)}</select><em><LockKeyhole size={14} /> Only you can change this status from your dashboard.</em></label>
+        <div className="row g-4 mt-1"><div className="col-md-6"><label>Lost / found date <small>{form.publishToCommunity ? "Required for publishing" : "Optional"}</small><input type="date" value={form.lostDate} onChange={(event) => updateField("lostDate", event.target.value)} /></label></div><div className="col-md-6"><label>Public-safe location <small>{form.publishToCommunity ? "Required for publishing" : "Optional"}</small><input value={form.lastSeenLocation} onChange={(event) => updateField("lastSeenLocation", event.target.value)} placeholder="Area or city only — no full address" /></label></div></div>
+        <div className="item-choice-stack">
+          <label className={`item-choice item-choice-featured ${form.publishToCommunity ? "is-selected" : ""}`}>
+            <input type="checkbox" checked={form.publishToCommunity} disabled={!["LOST", "FOUND", "MISSING"].includes(form.status)} onChange={(event) => updateField("publishToCommunity", event.target.checked)} />
+            <span className="item-choice-box" aria-hidden="true"><Check size={17} /></span>
+            <span className="item-choice-copy"><strong>Publish to Community Feed</strong><small>Let nearby community members help identify or return this item.</small></span>
+          </label>
+          <p className="item-choice-privacy"><ShieldCheck size={18} /> Only Lost, Found, or Missing items become visible. Your contact details always stay private.</p>
+          <div className="form-check-row item-choice-grid">
+            <label className={`item-choice ${form.publicSearchVisible ? "is-selected" : ""}`}>
+              <input type="checkbox" checked={form.publicSearchVisible} onChange={(event) => updateField("publicSearchVisible", event.target.checked)} />
+              <span className="item-choice-box" aria-hidden="true"><Check size={17} /></span>
+              <span className="item-choice-copy"><strong>Public lost-item search</strong><small>Allow this item to appear in relevant public search results.</small></span>
+            </label>
+            <label className={`item-choice ${form.qrRecoveryEnabled ? "is-selected" : ""}`}>
+              <input type="checkbox" checked={form.qrRecoveryEnabled} onChange={(event) => updateField("qrRecoveryEnabled", event.target.checked)} />
+              <span className="item-choice-box" aria-hidden="true"><Check size={17} /></span>
+              <span className="item-choice-copy"><strong>Enable QR recovery</strong><small>Let a finder scan the item’s QR code and contact you safely.</small></span>
+            </label>
+          </div>
+        </div>
       </section>
 
       <div className="form-action-bar"><div><Check size={17} /><span>Your changes are saved securely.</span></div><button className="btn btn-secondary-kp" type="button" onClick={() => router.back()}>Cancel</button><button className="btn btn-primary-kp" disabled={isLoading || isUploading} type="submit">{isLoading ? "Saving..." : mode === "create" ? "Add protected item" : "Save changes"}</button></div>

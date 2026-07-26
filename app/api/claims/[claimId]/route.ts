@@ -1,0 +1,2 @@
+import { communityFailure,communitySuccess } from "@/lib/community/api";import { requireCommunityUser } from "@/lib/community/route-auth";import { getClaim } from "@/lib/claims/service";
+export async function GET(_:Request,{params}:{params:Promise<{claimId:string}>}){try{const user=await requireCommunityUser();return communitySuccess("Claim detail",await getClaim((await params).claimId,user.id,user.role))}catch(error){return communityFailure(error,"claim.detail")}}

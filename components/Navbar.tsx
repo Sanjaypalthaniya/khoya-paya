@@ -8,8 +8,8 @@ const links = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "How It Works", href: "/how-it-works" },
+  { label: "Feed", href: "/community" },
   { label: "Pricing", href: "/pricing" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -104,7 +104,14 @@ export default function Navbar() {
           <span />
         </button>
       </div>
-      <div className={`mobile-navigation d-lg-none ${isMenuOpen ? "is-open" : ""}`} id="mobile-navigation" aria-hidden={!isMenuOpen}>
+      <div
+        className={`mobile-navigation d-lg-none ${isMenuOpen ? "is-open" : ""}`}
+        id="mobile-navigation"
+        aria-hidden={!isMenuOpen}
+        aria-label="Mobile navigation"
+        role="dialog"
+        inert={!isMenuOpen ? true : undefined}
+      >
         <div className="container">
           {links.map((link) => <Link className={isActive(link.href) ? "active" : ""} href={link.href} key={link.label} aria-current={isActive(link.href) ? "page" : undefined} onClick={() => setIsMenuOpen(false)}>{link.label}</Link>)}
           <div className="mobile-nav-actions">

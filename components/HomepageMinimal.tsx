@@ -1,138 +1,211 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  Bell, BriefcaseBusiness, Car, ChevronRight, CircleHelp,
-  Clock3, FileText, Home, KeyRound, MapPin,
-  Menu, MessageCircle, PawPrint, Plus, QrCode, Search, ShieldCheck,
-  Smartphone, Sparkles, Trophy, UserRound, Users, WalletCards, X,
+  ArrowUpRight, Building2, Check, ChevronDown, ChevronLeft, ChevronRight, CircleCheck, FileText,
+  GraduationCap, Home, KeyRound, Menu, MessageCircle, QrCode,
+  ShieldCheck, TrainFront, Users, X,
 } from "lucide-react";
-import CommunityFeed from "@/components/community/CommunityFeed";
 
-type User = { name: string; email?: string };
-type LinkItem = { label: string; href: string };
+type User = { name: string };
 
-const marketingLinks: LinkItem[] = [
-  { label: "Home", href: "/" }, { label: "About", href: "/about" },
-  { label: "How It Works", href: "/how-it-works" }, { label: "Pricing", href: "/pricing" },
-  { label: "Contact", href: "/contact" },
-];
-
-const categories = [
-  ["Mobile", Smartphone], ["Wallet", WalletCards], ["Keys", KeyRound], ["Documents", FileText],
-  ["Bags", BriefcaseBusiness], ["Pets", PawPrint], ["Vehicles", Car], ["Electronics", QrCode], ["Other", Plus],
+const navLinks = [
+  ["Product", "/#product"],
+  ["How It Works", "/#how-it-works"],
+  ["Solutions", "/#solutions"],
+  ["Pricing", "/pricing"],
+  ["Resources", "/#resources"],
 ] as const;
 
-function Brand() {
-  return <Link className="community-brand" href="/" aria-label="Khoya Paya home"><span aria-hidden="true">K</span><strong>Khoya Paya</strong></Link>;
-}
+const faqs = [
+  ["What does Khoya Paya actually do?", "It gives people a privacy-first way to report, discover, verify and recover important belongings."],
+  ["Does it work on Android?", "Yes. The responsive web experience works on modern Android and iOS browsers."],
+  ["Does it require a subscription or battery?", "Reporting and community search do not require a device battery. Optional QR protection plans are available for registered items."],
+  ["How does it connect to my phone?", "Finders use the protected recovery page or secure messaging. Your personal contact details do not need to be public."],
+  ["Will it slow down my phone or drain the battery?", "No. A Khoya Paya QR label is passive and requires no power."],
+  ["Can I customise which apps are locked?", "Khoya Paya protects item recovery details rather than controlling other applications on your phone."],
+  ["Can I block websites, not just apps?", "No. Khoya Paya is a recovery and community platform, not a website blocker."],
+  ["What happens if I lose the disc?", "You can mark the associated item as lost and manage or replace its protection from your dashboard."],
+  ["When will my order arrive?", "Delivery timing appears during checkout and depends on the selected QR product and destination."],
+  ["Will I pay customs or import fees?", "Any applicable delivery or import charges are shown where available before payment."],
+  ["Can I return my Khoya Paya QR?", "Please contact support with your order details so the team can confirm eligibility under the current return policy."],
+  ["Is checkout secure?", "Payments use the project's configured payment provider and are verified server-side."],
+] as const;
 
-function CommunityHeader({ user, search, setSearch, searchOpen, setSearchOpen, searchLoading, searchResults }: { user: User | null; search:string; setSearch:(value:string)=>void; searchOpen:boolean; setSearchOpen:(value:boolean)=>void; searchLoading:boolean; searchResults:Array<{id:string;title:string;location:string}> }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const drawerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const close = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
-    window.addEventListener("keydown", close);
-    drawerRef.current?.querySelector<HTMLElement>("a,button")?.focus();
-    return () => { document.body.style.overflow = previous; window.removeEventListener("keydown", close); };
-  }, [menuOpen]);
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/"); router.refresh();
-  }
-
-  return <>
-    <header className="community-header">
-      <div className="community-container community-header-inner">
-        <Brand />
-        <form className="community-global-search" onSubmit={(event) => event.preventDefault()} onClick={(event) => event.stopPropagation()} role="search">
-          <Search size={18} aria-hidden="true" /><label className="visually-hidden" htmlFor="global-search">Search lost and found items</label>
-          <input id="global-search" name="q" type="search" value={search} onFocus={() => setSearchOpen(true)} onChange={(event) => { setSearch(event.target.value); setSearchOpen(true); }} placeholder="Search lost items, locations or IDs" />
-          {searchOpen && <div className="homepage-search-popover" role="listbox" aria-label="Search results">{searchLoading && <span>Searching…</span>}{!searchLoading && search && !searchResults.length && <span>No matching public posts</span>}{searchResults.map((item) => <Link key={item.id} href={`/community/posts/${item.id}`} onClick={() => setSearchOpen(false)}><strong>{item.title}</strong><small>{item.location || "Community post"}</small></Link>)}</div>}
-        </form>
-        <nav className="community-desktop-nav" aria-label="Primary navigation">
-          {marketingLinks.map((item) => <Link className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} href={item.href} key={item.href}>{item.label}</Link>)}
-        </nav>
-        <div className="community-header-actions">
-          <Link className="icon-button search-trigger" href="/lost-items" aria-label="Search lost items"><Search size={20} /></Link>
-          {user && <Link className="icon-button" href="/dashboard/notifications" aria-label="Notifications"><Bell size={20} /></Link>}
-          {user ? <Link className="header-avatar" href="/dashboard" aria-label="Open dashboard">{user.name.charAt(0).toUpperCase()}</Link> : <><Link className="header-login" href="/login">Log in</Link><Link className="community-button small" href="/signup">Sign up</Link></>}
-          <button className="icon-button menu-trigger" type="button" aria-expanded={menuOpen} aria-controls="community-drawer" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Menu size={21} /></button>
-        </div>
+function PhoneMockup({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`kp-phone ${compact ? "compact" : ""}`} aria-label="Khoya Paya product interface preview">
+      <div className="kp-phone-notch" />
+      <div className="kp-phone-top"><strong>KHoya Paya</strong><span>•••</span></div>
+      <div className="kp-phone-orbit"><div><QrCode size={compact ? 28 : 42} /><span>Scan</span></div></div>
+      <div className="kp-phone-sheet">
+        <span>My protected items</span>
+        <div><KeyRound size={15} /><p><strong>House keys</strong><small>Protected</small></p><CircleCheck size={15} /></div>
+        <div><FileText size={15} /><p><strong>Travel wallet</strong><small>Safe at home</small></p><CircleCheck size={15} /></div>
       </div>
-    </header>
-    {menuOpen && <button className="community-drawer-backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />}
-    <div className={`community-drawer ${menuOpen ? "is-open" : ""}`} id="community-drawer" ref={drawerRef} aria-hidden={!menuOpen}>
-      <div className="drawer-heading"><Brand /><button className="icon-button" type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={20} /></button></div>
-      <nav aria-label="Mobile navigation">{marketingLinks.map((item) => <Link href={item.href} key={item.href} onClick={() => setMenuOpen(false)}>{item.label}<ChevronRight size={17} /></Link>)}</nav>
-      <div className="drawer-actions">{user ? <><Link className="community-button" href="/dashboard">Dashboard</Link><button className="community-button secondary" type="button" onClick={logout}>Log out</button></> : <><Link className="community-button" href="/signup">Create account</Link><Link className="community-button secondary" href="/login">Log in</Link></>}</div>
     </div>
-  </>;
+  );
 }
 
-function SectionHeading({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: ReactNode }) {
-  return <div className="community-section-heading"><div>{eyebrow && <span>{eyebrow}</span>}<h2>{title}</h2></div>{action}</div>;
+function Header({ user }: { user: User | null }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="kp-home-header">
+      <Link className="kp-wordmark" href="/" aria-label="Khoya Paya home"><span>K</span>Khoya Paya</Link>
+      <nav className="kp-nav-pill" aria-label="Primary navigation">
+        {navLinks.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}
+      </nav>
+      <div className="kp-header-actions">
+        <Link className="kp-signin" href={user ? "/dashboard" : "/login"}>{user ? "Dashboard" : "Sign in"}</Link>
+        <Link className="kp-button kp-button-light kp-button-small" href={user ? "/dashboard/items/add" : "/signup"}>{user ? "Add item" : "Get Started"}</Link>
+        <button className="kp-menu-button" type="button" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
+      </div>
+      {open && <nav className="kp-mobile-menu" aria-label="Mobile navigation">{navLinks.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}<Link href="/login">Sign in</Link><Link href="/signup">Get started</Link></nav>}
+    </header>
+  );
 }
 
-function LeftSidebar({ user }: { user: User | null }) {
-  const links = [
-    ["Home", "/", Home], ["Community", "/#community-feed", Users], ["Nearby", "/lost-items", MapPin],
-    ["My posts", "/dashboard/community-posts", FileText], ["My QR items", "/dashboard/items", QrCode],
-    ["Messages", "/dashboard/messages", MessageCircle], ["Scan history", "/dashboard/scans", Clock3],
-    ["Success stories", "/#success-stories", Trophy], ["Pricing", "/pricing", Sparkles], ["How It Works", "/how-it-works", CircleHelp],
-  ] as const;
-  return <aside className="community-left" aria-label="Community shortcuts">
-    <div className="community-card mini-profile"><span className="community-avatar">{user?.name.charAt(0).toUpperCase() || <UserRound size={21} />}</span><div><strong>{user?.name || "Welcome, neighbour"}</strong><small>{user ? "Your recovery hub" : "Join the recovery network"}</small></div></div>
-    <nav className="community-side-nav">{links.map(([label, href, Icon], i) => <Link className={i === 0 ? "active" : ""} href={href} key={label}><Icon size={19} />{label}</Link>)}</nav>
-    <div className="quick-report"><strong>Quick report</strong><Link className="lost" href="/dashboard/items/add">Report lost item</Link><Link className="found" href="/report-found-item">Report found item</Link></div>
-  </aside>;
-}
-
-function RightSidebar() {
-  return <aside className="community-right" aria-label="Community highlights">
-    <section className="community-card side-card"><SectionHeading eyebrow="This week" title="Top helpers" /><ol className="helper-list"><li><span>AM</span><div><strong>Aarav M.</strong><small>12 helpful responses</small></div><Trophy size={18} /></li><li><span>NS</span><div><strong>Neha S.</strong><small>9 helpful responses</small></div><Trophy size={18} /></li><li><span>RK</span><div><strong>Rohan K.</strong><small>7 helpful responses</small></div><Trophy size={18} /></li></ol></section>
-    <section className="community-card side-card"><SectionHeading eyebrow="Near you" title="Trending locations" /><div className="location-list"><Link href="/lost-items?q=station"><MapPin size={16} />Railway stations<span>24</span></Link><Link href="/lost-items?q=market"><MapPin size={16} />Local markets<span>18</span></Link><Link href="/lost-items?q=campus"><MapPin size={16} />Campuses<span>11</span></Link></div></section>
-    <section className="community-card protection-card"><ShieldCheck size={25} /><h2>Protect what matters</h2><p>Create a private QR recovery link for everyday valuables.</p><Link href="/pricing">Explore QR plans <ChevronRight size={16} /></Link></section>
-  </aside>;
+function SectionTitle({ title, copy }: { title: string; copy?: string }) {
+  return <div className="kp-section-title"><h2>{title}</h2>{copy && <p>{copy}</p>}</div>;
 }
 
 export default function HomepageMinimal() {
+  const caseSliderRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
-  const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<Array<{id:string;title:string;location:string}>>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  useEffect(() => { const query = search.trim(); if (!query) { setSearchResults([]); return; } const timer = window.setTimeout(async () => { setSearchLoading(true); try { const response = await fetch(`/api/community/search?q=${encodeURIComponent(query)}&limit=5`, { cache: "no-store" }); const body = await response.json(); setSearchResults((body.data?.items ?? []).map((item: {id:string;title:string;publicLocation?:{city?:string|null;state?:string|null}}) => ({ id: item.id, title: item.title, location: [item.publicLocation?.city, item.publicLocation?.state].filter(Boolean).join(", ") }))); } catch { setSearchResults([]); } finally { setSearchLoading(false); } }, 280); return () => window.clearTimeout(timer); }, [search]);
-  useEffect(() => { let mounted = true; fetch("/api/auth/me", { cache: "no-store" }).then(async (r) => ({ ok: r.ok, data: await r.json() })).then(({ ok, data }) => { if (mounted && ok && data.success) setUser(data.user); }).catch(() => undefined); return () => { mounted = false; }; }, []);
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/auth/me", { cache: "no-store" }).then(r => r.json()).then(data => {
+      if (mounted && data.success) setUser(data.user);
+    }).catch(() => undefined);
+    return () => { mounted = false; };
+  }, []);
 
-  return <main className="community-home" onClick={() => searchOpen && setSearchOpen(false)}>
-    <CommunityHeader user={user} search={search} setSearch={setSearch} searchOpen={searchOpen} setSearchOpen={setSearchOpen} searchLoading={searchLoading} searchResults={searchResults} />
-    <section className="community-hero">
-      <div className="community-container hero-grid"><div><span className="hero-kicker"><Users size={15} />India&apos;s community recovery network</span><h1>Lost something?<br /><em>Let your community help.</em></h1><p>Report lost or found items, search nearby posts, and protect valuables with private QR recovery.</p><div className="hero-actions"><Link className="community-button lost-action" href="/dashboard/items/add">Report lost item</Link><Link className="community-button found-action" href="/report-found-item">Report found item</Link><Link className="community-button secondary" href="/recover"><QrCode size={18} />Scan or enter QR</Link></div></div><form className="hero-search" action="/lost-items" role="search"><label htmlFor="hero-search">Search Lost &amp; Found</label><div><Search size={20} /><input id="hero-search" name="q" type="search" placeholder="Try “black wallet in Pune”" /><button type="submit">Search</button></div><small><ShieldCheck size={14} />Privacy-safe public listings</small></form></div>
+  return <main className="kp-approved-home">
+    <section className="kp-hero">
+      <Image src="/images/kp-home-hero.png" fill priority sizes="100vw" alt="" className="kp-hero-image" />
+      <div className="kp-hero-shade" />
+      <Header user={user} />
+      <div className="kp-hero-copy">
+        <span className="kp-kicker">Community-powered lost &amp; found</span>
+        <h1>Bring Lost Things Home.<br />All in One Place.</h1>
+        <div className="kp-hero-intro">
+          <p>Report lost or found items, reach people nearby, verify ownership privately, and complete recovery without exposing personal details.</p>
+          <div><Link className="kp-button kp-button-light" href="/dashboard/items/add">Report a Lost Item</Link><Link className="kp-text-link light" href="/report-found-item">I Found Something <ArrowUpRight size={14} /></Link></div>
+        </div>
+      </div>
+      <div className="kp-status-rail">
+        {[["Lost Item Report","Create a clear report"],["Nearby Match","Relevant reports surfaced"],["QR Scan","Private recovery route"],["Recovery Confirmed","Close the loop safely"]].map(([title, copy], i) =>
+          <Link href={i === 3 ? "/dashboard/claims" : i === 2 ? "/dashboard/items" : "/lost-items"} key={title}><span className={i === 3 ? "green" : ""}>{i === 3 ? <Check size={13} /> : i + 1}</span><p><strong>{title}</strong><small>{copy}</small></p></Link>
+        )}
+      </div>
     </section>
 
-    <section className="community-categories" aria-labelledby="category-title"><div className="community-container"><SectionHeading title="Quick categories" action={<Link href="/lost-items">View all <ChevronRight size={16} /></Link>} /><div className="category-row">{categories.map(([label, Icon]) => <Link href={`/lost-items?category=${encodeURIComponent(label)}`} key={label}><span><Icon size={20} /></span>{label}</Link>)}</div></div></section>
+    <section className="kp-trust-strip" aria-label="Platform principles">
+      <p>Designed for people and places where belongings matter.</p>
+      <div>{["Privacy first","Community powered","Secure verification","Safer recovery","Built for everyday life"].map((item, i) => <span key={item}>{i % 2 ? <Users size={15} /> : <ShieldCheck size={15} />}{item}</span>)}</div>
+    </section>
 
-    <div className="community-container community-layout">
-      <LeftSidebar user={user} />
-      <div id="community-feed"><CommunityFeed initials={user?.name.charAt(0).toUpperCase() || "U"} /></div>
-      <RightSidebar />
-    </div>
+    <section className="kp-split kp-container" id="product">
+      <div className="kp-split-copy">
+        <h2>A Digital Identity<br />for Every Important Item.</h2>
+        <p>Register your bags, wallets, keys, electronics, documents, and pet tags before they are lost. Every item receives a unique QR recovery page that helps a finder contact you safely.</p>
+        <Link className="kp-button kp-button-dark" href="/signup">Protect an Item <ArrowUpRight size={14} /></Link>
+        <Link className="kp-button kp-button-outline" href="/how-it-works">See How QR Recovery Works <ArrowUpRight size={14} /></Link>
+      </div>
+      <div className="kp-split-photo"><Image src="/images/kp-home-lifestyle.png" fill sizes="(max-width: 700px) 100vw, 50vw" alt="Everyday valuables arranged on a walnut table" /></div>
+    </section>
 
-    <section className="compact-marketing" id="success-stories"><div className="community-container"><SectionHeading eyebrow="Community momentum" title="Small actions. Real reunions." /><div className="stats-grid"><article><strong>Privacy first</strong><span>Owner contact details stay hidden</span></article><article><strong>QR powered</strong><span>One scan opens a safe recovery route</span></article><article><strong>Community led</strong><span>Helpful local reports improve the odds</span></article><article><strong>Built for trust</strong><span>Verification and secure messaging included</span></article></div></div></section>
-    <section className="how-preview"><div className="community-container"><SectionHeading eyebrow="Simple by design" title="From missing to reunited" action={<Link href="/how-it-works">How it works <ChevronRight size={16} /></Link>} /><div className="steps-grid">{[["1", "Share safely", "Create a privacy-safe lost or found report."], ["2", "Connect securely", "Use finder messaging without exposing personal details."], ["3", "Recover confidently", "Verify, coordinate, and mark the item recovered."]].map(([n,t,c]) => <article key={n}><span>{n}</span><h3>{t}</h3><p>{c}</p></article>)}</div></div></section>
-    <section className="qr-preview"><div className="community-container qr-preview-inner"><div><span className="hero-kicker light"><QrCode size={15} />QR protection</span><h2>Give honest finders a safe way to reach you.</h2><p>Attach a unique Khoya Paya QR to bags, keys, documents, pet collars, and more.</p><div><Link className="community-button light-button" href="/signup">Protect an item</Link><Link className="text-link-light" href="/pricing">See pricing <ChevronRight size={16} /></Link></div></div><div className="qr-demo" aria-label="QR protection illustration"><QrCode size={118} /><span><ShieldCheck size={18} />Private contact enabled</span></div></div></section>
-    <section className="safety-faq"><div className="community-container safety-grid"><div><ShieldCheck size={30} /><span>Safety &amp; privacy</span><h2>Your details are yours.</h2><p>Finders communicate through safe platform flows. Phone numbers and email addresses do not need to be posted publicly.</p><Link href="/privacy-policy">Read our privacy policy</Link></div><div><SectionHeading eyebrow="Common questions" title="Good to know" />{[["Is it free to report an item?", "Yes. Public found-item reporting does not require an account, and core registration is available on the free plan."], ["What if my item has no QR?", "Use the public found report or search nearby lost listings."], ["Can a finder see my phone number?", "No. Safe messaging is designed to protect owner contact details."]].map(([q,a],i) => <details key={q} open={i===0}><summary>{q}<Plus size={18} /></summary><p>{a}</p></details>)}</div></div></section>
-    <footer className="community-footer"><div className="community-container"><div className="footer-main"><div><Brand /><p>Community-powered lost and found with private QR recovery.</p></div><nav aria-label="Footer navigation">{marketingLinks.slice(1).map((item) => <Link href={item.href} key={item.href}>{item.label}</Link>)}<Link href="/lost-items">Lost items</Link><Link href="/report-found-item">Report found</Link><Link href="/privacy-policy">Privacy</Link><Link href="/terms-and-conditions">Terms</Link></nav></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Khoya Paya</span><span>Find less. Recover more.</span></div></div></footer>
-    <nav className="mobile-bottom-nav" aria-label="Mobile primary navigation"><Link className="active" href="/"><Home size={20} /><span>Home</span></Link><Link href="/lost-items"><Search size={20} /><span>Search</span></Link><Link className="create" href="/dashboard/items/add"><Plus size={23} /><span>Create</span></Link><Link href="/dashboard/messages"><MessageCircle size={20} /><span>Messages</span></Link><Link href={user ? "/dashboard" : "/login"}><UserRound size={20} /><span>Profile</span></Link></nav>
+    <section className="kp-how kp-container" id="how-it-works">
+      <SectionTitle title="How it works." copy="A simple recovery journey—from reporting an item to bringing it safely home." />
+      <div className="kp-step-grid">
+        {[
+          ["01","Report the Item","Add a photo, category, description, last-known place, and the details that are safe to share.",<FileText key="i" />],
+          ["02","Reach the Right People","Your public-safe post becomes discoverable through search and nearby community members.",<MessageCircle key="i" />],
+          ["03","Verify and Recover","Connect privately, confirm ownership, arrange a safe return, and close the item as recovered.",<ShieldCheck key="i" />],
+        ].map(([n, title, copy, icon]) => <article key={String(n)}><span>{n}</span><h3>{title}</h3><p>{copy}</p><div className="kp-step-visual">{icon}<div className="mini-lines"><i /><i /><i /></div></div></article>)}
+      </div>
+      <Link className="kp-button kp-button-dark kp-centered-button" href="/how-it-works">See the Complete Recovery Journey <ArrowUpRight size={14} /></Link>
+    </section>
+
+    <section className="kp-dashboard-section">
+      <div className="kp-container kp-dashboard-grid">
+        <div>
+          <SectionTitle title="Everything You Need. In One Quiet Dashboard." />
+          <div className="kp-chips">{["My Items","Community Feed","Nearby","Messages","Claims","QR Scans"].map(x => <span key={x}>{x}</span>)}</div>
+          <h3>One view. Every recovery step.</h3>
+          <p>Manage registered items, community posts, scans, conversations, claims, and recovery progress from one simple dashboard.</p>
+          <Link className="kp-button kp-button-dark" href="/dashboard">Explore the Dashboard <ArrowUpRight size={14} /></Link>
+        </div>
+        <PhoneMockup />
+      </div>
+    </section>
+
+    <section className="kp-recovery kp-container">
+      <Image src="/images/kp-home-hero.png" fill sizes="100vw" alt="" />
+      <div className="kp-recovery-overlay" />
+      <div className="kp-recovery-copy">
+        <h2>Lost-Item Recovery<br />Shouldn’t Feel Scattered.</h2>
+        <p>Khoya Paya connects protection, reporting, discovery, verification, and recovery into one structured process.</p>
+        <span>Reported → Discovered → Claim Received → Verified → Recovered</span>
+      </div>
+      <div className="kp-fact-grid">
+        {[["Item Status","Safe, Lost, Found, Missing and Recovered"],["Up to 8 Images","Add clear visual information to help people recognise an item"],["Secure Recovery Thread","Keep owner and finder communication connected to the item"],["Public Contact Details","Phone numbers and addresses stay private by default"]].map(([title, copy]) => <article key={title}><strong>{title}</strong><p>{copy}</p></article>)}
+      </div>
+    </section>
+
+    <section className="kp-use-cases" id="solutions">
+      <div className="kp-use-cases-heading kp-container">
+        <SectionTitle title="Make Recovery Easier Wherever Life Happens." copy="Manage registered items, community posts, scans, conversations, claims, and recovery progress from one simple dashboard." />
+        <div className="kp-slider-controls" aria-label="Use case slider controls">
+          <button type="button" aria-label="Previous use cases" onClick={() => caseSliderRef.current?.scrollBy({ left: -420, behavior: "smooth" })}><ChevronLeft size={19} /></button>
+          <button type="button" aria-label="Next use cases" onClick={() => caseSliderRef.current?.scrollBy({ left: 420, behavior: "smooth" })}><ChevronRight size={19} /></button>
+        </div>
+      </div>
+      <div className="kp-case-grid" ref={caseSliderRef}>
+        {[
+          ["Families","Protect wallets, keys, bags, phones, documents and other everyday essentials.",Home],
+          ["Schools and Colleges","Create an organised lost-and-found system for students, staff and campus belongings.",GraduationCap],
+          ["Apartments and Societies","Connect residents, guards, and management through one community recovery network.",Building2],
+          ["Offices and Businesses","Manage employee belongings, visitor items, and workplace lost-and-found records.",Users],
+          ["Travel and Transport","Support safer item recovery across cabs, stations, hotels and shared journeys.",TrainFront],
+        ].map(([title, copy], i) => <article key={String(title)} className={`case-${i}`}><div className="kp-case-image"><Image src="/images/kp-home-lifestyle.png" fill sizes="(max-width: 600px) 78vw, 320px" alt="" /></div><h3>{String(title)}</h3><p>{String(copy)}</p></article>)}
+      </div>
+    </section>
+
+    <section className="kp-faq kp-container">
+      <SectionTitle title="Questions, answered." />
+      <div>{faqs.map(([q,a]) => <details key={q}><summary>{q}<ChevronDown size={16} /></summary><p>{a}</p></details>)}</div>
+    </section>
+
+    <section className="kp-protection kp-container">
+      <div className="kp-protection-visual"><QrCode size={80} /><span>Protected with Khoya Paya</span></div>
+      <div><span className="kp-kicker dark">QR item protection</span><h2>Protect the Things<br />That Move with You.</h2><p>Register everyday essentials today and give them a safer path back when they go missing.</p><Link className="kp-button kp-button-dark" href="/signup">Register Your First Item <ArrowUpRight size={14} /></Link></div>
+    </section>
+
+    <section className="kp-journal kp-container" id="resources">
+      <div className="kp-journal-heading"><SectionTitle title="From the Community." copy="Short, practical reads about safer reporting, useful item details, and thoughtful recovery." /><Link href="/how-it-works">View All Resources <ArrowUpRight size={14} /></Link></div>
+      <div className="kp-article-grid">
+        {[
+          ["What to Do in the First 30 Minutes After Losing Something","/how-it-works"],
+          ["How to Create a Lost Item Report People Can Actually Recognise","/lost-items"],
+          ["What to Do When You Find Someone’s Wallet","/report-found-item"],
+        ].map(([title, href], i) => <article key={title}><Link href={href} className={`kp-article-image crop-${i}`}><Image src="/images/kp-home-lifestyle.png" fill sizes="33vw" alt="" /><span>Recovery guide</span></Link><h3><Link href={href}>{title}</Link></h3><p>A practical checklist to help you reduce risk, protect personal information, and publish a useful report.</p><Link href={href}>Read the Guide <ArrowUpRight size={13} /></Link></article>)}
+      </div>
+    </section>
+
+    <footer className="kp-home-footer">
+      <div className="kp-container kp-footer-grid">
+        <div><Link className="kp-wordmark footer-mark" href="/"><span>K</span>Khoya Paya</Link><p>A community-powered platform helping lost belongings find a safer path home.</p><small>Privacy. Contact. Recovery.</small></div>
+        {[
+          ["Product",[["Community Feed","/lost-items"],["Search Items","/lost-items"],["Nearby Items","/lost-items"],["QR Protection","/dashboard/items"],["Recovery Dashboard","/dashboard"]]],
+          ["Report",[["Report Lost Item","/dashboard/items/add"],["Report Found Item","/report-found-item"],["Report Missing Pet","/dashboard/items/add"],["Report Document","/dashboard/items/add"],["Report Vehicle","/dashboard/items/add"]]],
+          ["Solutions",[["Individuals","/#solutions"],["Families","/#solutions"],["Schools and Colleges","/#solutions"],["Apartments and Societies","/#solutions"],["Offices and Businesses","/#solutions"],["Travel and Transport","/#solutions"]]],
+          ["Resources",[["How It Works","/how-it-works"],["Safety Center","/privacy-policy"],["Help Center","/faq"],["Community Guidelines","/terms-and-conditions"],["Journal","/#resources"]]],
+        ].map(([heading, links]) => <nav key={String(heading)} aria-label={`${heading} links`}><strong>{String(heading)}</strong>{(links as string[][]).map(([label,href]) => <Link key={label} href={href}>{label}</Link>)}</nav>)}
+      </div>
+      <div className="kp-container kp-footer-bottom"><span>© {new Date().getFullYear()} Khoya Paya. All rights reserved.</span><div><Link href="/privacy-policy">Privacy</Link><Link href="/terms-and-conditions">Terms</Link></div></div>
+    </footer>
   </main>;
 }

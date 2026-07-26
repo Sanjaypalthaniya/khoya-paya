@@ -12,7 +12,7 @@ type EditItemPageProps = { params: Promise<{ id: string }> };
 export default async function EditItemPage({ params }: EditItemPageProps) {
   const { id } = await params;
   const user = await getCurrentUser();
-  const item = user ? await prisma.item.findFirst({ where: { id, userId: user.id } }) : null;
+  const item = user ? await prisma.item.findFirst({ where: { id, userId: user.id, deletedAt: null } }) : null;
   if (!item) notFound();
 
   return (
@@ -31,6 +31,14 @@ export default async function EditItemPage({ params }: EditItemPageProps) {
               rewardAmount: item.rewardAmount ? item.rewardAmount.toString() : null,
               contactPreference: item.contactPreference,
               status: item.status,
+              brand: item.brand,
+              modelNumber: item.modelNumber,
+              color: item.color,
+              identifyingMarks: item.identifyingMarks,
+              lastSeenLocation: item.lastSeenLocation,
+              lostDate: item.lostDate,
+              publicSearchVisible: item.publicSearchVisible,
+              qrRecoveryEnabled: item.qrRecoveryEnabled,
             }} />
           </DashboardLayout>
         </div>

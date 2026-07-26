@@ -1,0 +1,2 @@
+import { communityFailure,communitySuccess } from "@/lib/community/api";import { CommunityError } from "@/lib/community/errors";import { trustDto } from "@/lib/community/reputation";
+export async function GET(_:Request,{params}:{params:Promise<{userId:string}>}){try{const data=await trustDto((await params).userId);if(!data)throw new CommunityError("NOT_FOUND","Public trust profile not found.",404);return communitySuccess("Public trust summary",data)}catch(error){return communityFailure(error,"community.user.trust")}}

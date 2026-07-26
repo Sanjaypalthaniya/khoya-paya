@@ -1,0 +1,2 @@
+import { z } from "zod";import { communityFailure,communitySuccess } from "@/lib/community/api";import { getTrendingPosts } from "@/lib/community/trending";
+const schema=z.object({period:z.enum(["TODAY","WEEK","MONTH"]).default("WEEK"),limit:z.coerce.number().int().min(1).max(30).default(10)});export async function GET(req:Request){try{const input=schema.parse(Object.fromEntries(new URL(req.url).searchParams));return communitySuccess("Trending posts",await getTrendingPosts(input.period,input.limit))}catch(error){return communityFailure(error,"community.trending.posts")}}

@@ -1,0 +1,14 @@
+import { LeaderboardPeriod, LeaderboardType } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+export const periodKey = (period: LeaderboardPeriod, date = new Date()) => period === "ALL_TIME" ? "ALL" : period === "MONTHLY" ? date.toISOString().slice(0, 7) : `${date.getUTCFullYear()}-W${Math.ceil((((date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 1)) / 864e5) + new Date(Date.UTC(date.getUTCFullYear(), 0, 1)).getUTCDay() + 1) / 7)}`;
+function score(type: LeaderboardType, profile: { trustScore: number; verifiedReturns: number; successfulReturns: number; helpfulComments: number; pointsBalance: number }) { if (type === "TRUST_SCORE") return profile.trustScore; if (type === "VERIFIED_RETURNS") return profile.verifiedReturns * 100 + profile.successfulReturns; if (type === "HELPFUL_CONTRIBUTORS") return profile.helpfulComments * 5 + profile.verifiedReturns * 10; return profile.verifiedReturns * 50 + profile.successfulReturns * 20 + profile.helpfulComments * 3 + profile.pointsBalance * .1; }
+export async function calculateLeaderboard(type: LeaderboardType, period: LeaderboardPeriod, dryRun = true) {
+  const users = await prisma.user.findMany({ where: { isBlocked: false, leaderboardOptOut: false, trustProfile: { isNot: null } }, select: { id: true, trustProfile: true } });
+  const ranked = users.map(user => ({ userId: user.id, score: score(type, user.trustProfile!) })).filter(row => row.score > 0).sort((a, b) => b.score - a.score || a.userId.localeCompare(b.userId)).map((row, index) => ({ ...row, rank: index + 1 }));
+  const key = periodKey(period);
+  if (!dryRun) await prisma.$transaction(ranked.map(row => prisma.leaderboardSnapshot.upsert({ where: { userId_leaderboardType_periodType_periodKey_locationScope_locationValue: { userId: row.userId, leaderboardType: type, periodType: period, periodKey: key, locationScope: "GLOBAL", locationValue: "" } }, create: { ...row, leaderboardType: type, periodType: period, periodKey: key }, update: { score: row.score, rank: row.rank, calculatedAt: new Date() } })));
+  return { dryRun, type, period, periodKey: key, entries: ranked.length };
+}
+export async function leaderboard(type: LeaderboardType, period: LeaderboardPeriod, limit: number) {
+  return prisma.leaderboardSnapshot.findMany({ where: { leaderboardType: type, periodType: period, periodKey: periodKey(period), locationScope: "GLOBAL", user: { isBlocked: false, leaderboardOptOut: false } }, orderBy: [{ rank: "asc" }, { userId: "asc" }], take: limit, select: { rank: true, score: true, calculatedAt: true, user: { select: { id: true, name: true, trustScore: true, publicCity: true, publicState: true, trustProfile: { select: { verifiedReturns: true, successfulReturns: true, helpfulComments: true } }, userBadges: { where: { revokedAt: null }, take: 1, orderBy: { badge: { priority: "desc" } }, select: { badge: { select: { code: true, name: true, icon: true } } } } } } } });
+}

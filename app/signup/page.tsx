@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showPasswords, setShowPasswords] = useState(false);
 
   function updateField(field: keyof typeof form, value: string | boolean) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -91,8 +93,8 @@ export default function SignupPage() {
           <label>Full name<input type="text" placeholder="Your full name" value={form.name} onChange={(event) => updateField("name", event.target.value)} /></label>
           <label>Email<input type="email" placeholder="you@example.com" value={form.email} onChange={(event) => updateField("email", event.target.value)} /></label>
           <label>Phone optional<input type="tel" placeholder="+91 90000 00000" value={form.phone} onChange={(event) => updateField("phone", event.target.value)} /></label>
-          <label>Password<input type="password" placeholder="Create password" value={form.password} onChange={(event) => updateField("password", event.target.value)} /></label>
-          <label>Confirm password<input type="password" placeholder="Confirm password" value={form.confirmPassword} onChange={(event) => updateField("confirmPassword", event.target.value)} /></label>
+          <label>Password<span className="password-field"><input type={showPasswords ? "text" : "password"} placeholder="Create password" value={form.password} onChange={(event) => updateField("password", event.target.value)} /><button type="button" aria-label={showPasswords ? "Hide passwords" : "Show passwords"} aria-pressed={showPasswords} onClick={() => setShowPasswords(value => !value)}>{showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></label>
+          <label>Confirm password<input type={showPasswords ? "text" : "password"} placeholder="Confirm password" value={form.confirmPassword} onChange={(event) => updateField("confirmPassword", event.target.value)} /></label>
           <label className="check-label"><input type="checkbox" checked={form.acceptedTerms} onChange={(event) => updateField("acceptedTerms", event.target.checked)} /> I agree to Terms & Privacy Policy</label>
           <button className="btn btn-primary-kp w-100" type="submit" disabled={isLoading}>{isLoading ? "Creating account..." : "Signup"}</button>
         </form>
