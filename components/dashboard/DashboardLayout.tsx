@@ -4,6 +4,7 @@ import { ChevronDown, Search } from "lucide-react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
 import NotificationBell from "@/components/dashboard/NotificationBell";
+import LogoutButton from "@/components/auth/LogoutButton";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -53,7 +54,7 @@ export default async function DashboardLayout({ active, children }: DashboardLay
             {user ? <NotificationBell userId={user.id} /> : null}
             <details className="dashboard-profile">
               <summary><span>{user?.name?.charAt(0).toUpperCase() || "K"}</span><div><b>{user?.name || "Account"}</b><small>{planName} plan</small></div><ChevronDown size={16} /></summary>
-              <div><Link href="/dashboard/settings">Account settings</Link><Link href="/dashboard/billing">Plan & billing</Link></div>
+              <div><Link href="/dashboard/settings">Account settings</Link><Link href="/dashboard/billing">Plan & billing</Link><LogoutButton className="dashboard-profile-logout" /></div>
             </details>
           </div>
         </header>

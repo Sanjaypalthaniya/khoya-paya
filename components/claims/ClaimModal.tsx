@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { CommunityPostType } from "@/lib/community/types";
+import { MapPin, ShieldCheck, X } from "lucide-react";
 
 function claimType(type: CommunityPostType) {
   return type.startsWith("FOUND") ? "THIS_IS_MINE" : "I_FOUND_THIS";
@@ -75,17 +76,19 @@ export default function ClaimModal({ postId, postType, onClose }: {
   }
 
   return <div className="composer-modal-backdrop" onMouseDown={event => event.target === event.currentTarget && !busy && onClose()}>
-    <form ref={dialogRef} className="composer-modal" onSubmit={submit} role="dialog" aria-modal="true" aria-labelledby="claim-modal-title" aria-describedby="claim-modal-safety">
-      <header><h2 id="claim-modal-title">{postType.startsWith("FOUND") ? "This may be my item" : "I found this item"}</h2></header>
+    <form ref={dialogRef} className="composer-modal claim-dialog" onSubmit={submit} role="dialog" aria-modal="true" aria-labelledby="claim-modal-title" aria-describedby="claim-modal-safety">
+      <header><div className="claim-dialog-heading"><span><ShieldCheck size={22} /></span><div><small>Private recovery request</small><h2 id="claim-modal-title">{postType.startsWith("FOUND") ? "This may be my item" : "I found this item"}</h2></div></div><button type="button" aria-label="Close claim dialog" disabled={busy} onClick={onClose}><X size={20} /></button></header>
       {success ? <>
         <p role="status">Your claim was submitted privately. Verification details are never shown publicly.</p>
         <a className="btn btn-primary-kp" href={success.deepLink}>Continue verification</a>
       </> : <>
-        <p id="claim-modal-safety">Do not include passwords, PINs, full identity numbers, phone numbers, email, or exact home addresses.</p>
-        <label>Public-safe summary<textarea autoFocus required minLength={10} maxLength={1000} value={publicMessage} onChange={event => setPublicMessage(event.target.value)} aria-invalid={Boolean(error) || undefined} /></label>
-        <label>Private verification context (optional)<textarea maxLength={2000} value={privateMessage} onChange={event => setPrivateMessage(event.target.value)} /></label>
-        <label>Approximate area (optional)<input maxLength={200} value={location} onChange={event => setLocation(event.target.value)} /></label>
-        {error && <p role="alert">{error}</p>}
+        <p className="claim-safety" id="claim-modal-safety"><ShieldCheck size={18} /><span><strong>Keep personal details private</strong>Do not include passwords, PINs, identity numbers, phone numbers, email, or exact home addresses.</span></p>
+        <div className="claim-fields">
+          <label><span>Public-safe summary <b>Required</b></span><small>Briefly explain how you can help with this item.</small><textarea autoFocus required minLength={10} maxLength={1000} rows={4} placeholder="Example: I found an item matching this description near the metro station." value={publicMessage} onChange={event => setPublicMessage(event.target.value)} aria-invalid={Boolean(error) || undefined} /></label>
+          <label><span>Private verification context <i>Optional</i></span><small>Share a detail only the owner or finder should know.</small><textarea maxLength={2000} rows={3} placeholder="Add a private identifying detail…" value={privateMessage} onChange={event => setPrivateMessage(event.target.value)} /></label>
+          <label><span><MapPin size={15} />Approximate area <i>Optional</i></span><small>Use a landmark or neighbourhood, never an exact address.</small><input maxLength={200} placeholder="Example: Rajiv Chowk metro area" value={location} onChange={event => setLocation(event.target.value)} /></label>
+        </div>
+        {error && <p className="claim-error" role="alert">{error}</p>}
       </>}
       <footer><button type="button" disabled={busy} onClick={onClose}>Close</button>{!success && <button type="submit" disabled={busy}>{busy ? "Submitting…" : "Submit privately"}</button>}</footer>
     </form>

@@ -6,6 +6,7 @@ import "./ui-system.css";
 import "./mobile-repair.css";
 import "./motion.css";
 import MotionRuntime from "@/components/motion/MotionRuntime";
+import { LogoutProvider } from "@/components/auth/LogoutButton";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
@@ -48,7 +49,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body><MotionRuntime />{children}</body>
+      <body><MotionRuntime /><LogoutProvider>{children}</LogoutProvider></body>
     </html>
   );
 }
