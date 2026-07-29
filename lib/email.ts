@@ -139,3 +139,14 @@ export async function sendOwnerChatReplyEmail(input: { ownerEmail: string; owner
     text: `Hi ${input.ownerName},\n\nA finder replied in your secure chat about ${input.itemName}.\nOpen conversation: ${input.dashboardUrl}`,
   });
 }
+
+export async function sendPasswordResetEmail(input: { email: string; name: string; resetUrl: string }) {
+  const safeName = escapeHtml(input.name);
+  const safeUrl = escapeHtml(input.resetUrl);
+  return sendEmail({
+    to: input.email,
+    subject: "Reset your Khoya Paya password",
+    html: `<div style="margin:0;padding:28px;background:#f3f5f4;font-family:Arial,sans-serif;color:#202422"><div style="max-width:560px;margin:0 auto;overflow:hidden;border:1px solid #e1e5e2;border-radius:20px;background:#fff"><div style="padding:26px;background:#171a18;color:#fff"><p style="margin:0 0 7px;color:#efff4d;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Khoya Paya account security</p><h1 style="margin:0;font-size:25px">Reset your password</h1></div><div style="padding:26px"><p>Hi ${safeName},</p><p>We received a request to reset your password. This secure link expires in 30 minutes and can be used only once.</p><p style="margin:24px 0"><a href="${safeUrl}" style="display:inline-block;padding:13px 20px;border-radius:12px;background:#202421;color:#fff;text-decoration:none;font-weight:700">Choose a new password</a></p><p style="color:#65706a;font-size:13px;line-height:1.5">If you did not request this, you can safely ignore this email. Your password will not change.</p></div></div></div>`,
+    text: `Hi ${input.name},\n\nReset your Khoya Paya password using this secure link:\n${input.resetUrl}\n\nThe link expires in 30 minutes and can be used only once. If you did not request this, ignore this email.`,
+  });
+}

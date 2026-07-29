@@ -655,9 +655,23 @@ model User {
   claimsRequested                 ClaimRequest[]            @relation("ClaimRequester")
   claimsReceived                  ClaimRequest[]            @relation("ClaimRecipient")
   mobileSessions                  MobileSession[]
+  passwordResetTokens             PasswordResetToken[]
 
   @@index([email])
   @@index([postingRestrictedUntil])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
 }
 
 model MobileSession {
