@@ -7,33 +7,38 @@ import {
   History, LayoutDashboard, MessagesSquare, MessageSquareText, Newspaper, Plus, Settings, SearchCheck,
   ShieldCheck, Sparkles, X,
 } from "lucide-react";
-import LogoutButton from "@/components/auth/LogoutButton";
 
 const linkGroups = [
-  { label: "Workspace", links: [
-    { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Feed", href: "/dashboard/feed", icon: Newspaper },
-    { label: "My Items", href: "/dashboard/items", icon: Box },
-    { label: "Add Item", href: "/dashboard/items/add", icon: Plus },
-    { label: "Community Posts", href: "/dashboard/community-posts", icon: FileUp },
-  ]},
-  { label: "Recovery", links: [
-    { label: "Claims & Returns", href: "/dashboard/claims", icon: ShieldCheck },
-    { label: "Finder Messages", href: "/dashboard/messages", icon: MessageSquareText },
-    { label: "Secure Chats", href: "/dashboard/chats", icon: MessagesSquare },
-    { label: "Recovery Requests", href: "/dashboard/recovery-requests", icon: History },
-    { label: "Found Reports", href: "/dashboard/found-reports", icon: SearchCheck },
-    { label: "Scan History", href: "/dashboard/scans", icon: Clock3 },
-  ]},
-  { label: "Manage", links: [
-    { label: "Bulk Upload", href: "/dashboard/bulk-upload", icon: FileUp },
-    { label: "Bulk QR", href: "/dashboard/bulk-qr", icon: Grid2X2 },
-    { label: "Bulk History", href: "/dashboard/bulk-history", icon: History },
-    { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
-    { label: "Verification", href: "/dashboard/verification", icon: ShieldCheck },
-    { label: "Billing", href: "/dashboard/billing", icon: CircleDollarSign },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings },
-  ]},
+  {
+    label: "Workspace", links: [
+      { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Feed", href: "/dashboard/feed", icon: Newspaper },
+      { label: "My Items", href: "/dashboard/items", icon: Box },
+      { label: "Add Item", href: "/dashboard/items/add", icon: Plus },
+      { label: "Community Posts", href: "/dashboard/community-posts", icon: FileUp },
+    ]
+  },
+  {
+    label: "Recovery", links: [
+      { label: "Claims & Returns", href: "/dashboard/claims", icon: ShieldCheck },
+      { label: "Finder Messages", href: "/dashboard/messages", icon: MessageSquareText },
+      { label: "Secure Chats", href: "/dashboard/chats", icon: MessagesSquare },
+      { label: "Recovery Requests", href: "/dashboard/recovery-requests", icon: History },
+      { label: "Found Reports", href: "/dashboard/found-reports", icon: SearchCheck },
+      { label: "Scan History", href: "/dashboard/scans", icon: Clock3 },
+    ]
+  },
+  {
+    label: "Manage", links: [
+      { label: "Bulk Upload", href: "/dashboard/bulk-upload", icon: FileUp },
+      { label: "Bulk QR", href: "/dashboard/bulk-qr", icon: Grid2X2 },
+      { label: "Bulk History", href: "/dashboard/bulk-history", icon: History },
+      { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+      { label: "Verification", href: "/dashboard/verification", icon: ShieldCheck },
+      { label: "Billing", href: "/dashboard/billing", icon: CircleDollarSign },
+      { label: "Settings", href: "/dashboard/settings", icon: Settings },
+    ]
+  },
 ];
 
 type Props = {
@@ -99,7 +104,7 @@ export default function DashboardSidebar({ active, user, planName = "Free", item
           <div className="sidebar-plan-head"><span><Sparkles size={16} /> Current plan</span><b>{planName}</b></div>
           <div className="sidebar-usage-copy"><span>Item registration</span><span>{itemCount} of {itemLimit}</span></div>
           <Link href="/dashboard/billing"><ShieldCheck size={17} /> Upgrade plan</Link>
-          {/* <LogoutButton className="sidebar-logout" onComplete={() => setOpen(false)} /> */}
+
         </div>
       </aside>
     </>
