@@ -99,7 +99,7 @@ export default function DashboardSidebar({ active, user, planName = "Free", item
           <div className="sidebar-plan-head"><span><Sparkles size={16} /> Current plan</span><b>{planName}</b></div>
           <div className="sidebar-usage-copy"><span>Item registration</span><span>{itemCount} of {itemLimit}</span></div>
           <Link href="/dashboard/billing"><ShieldCheck size={17} /> Upgrade plan</Link>
-          <LogoutButton className="sidebar-logout" onComplete={() => setOpen(false)} />
+          {/* <LogoutButton className="sidebar-logout" onComplete={() => setOpen(false)} /> */}
         </div>
       </aside>
     </>
