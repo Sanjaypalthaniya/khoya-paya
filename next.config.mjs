@@ -13,7 +13,7 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
-  allowedDevOrigins: ["172.19.95.218"],
+  allowedDevOrigins: ["10.224.72.218", "172.19.95.218"],
   turbopack: { root: process.cwd() },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

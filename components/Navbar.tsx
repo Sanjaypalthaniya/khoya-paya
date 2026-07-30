@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 const links = [
   { label: "Home", href: "/" },
@@ -17,7 +18,6 @@ export default function Navbar() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   function isActive(href: string) {
     return href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -66,13 +66,6 @@ export default function Navbar() {
     };
   }, [isMenuOpen]);
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
-    router.replace("/");
-    router.refresh();
-  }
-
   return (
     <nav className="kp-navbar" aria-label="Primary navigation">
       <div className="container d-flex align-items-center justify-content-between">
@@ -90,7 +83,7 @@ export default function Navbar() {
           {!isCheckingAuth && user ? (
             <>
               <Link className="btn btn-primary-kp btn-sm-pill" href="/dashboard">Dashboard</Link>
-              <button className="btn btn-secondary-kp btn-sm-pill" type="button" onClick={handleLogout}>Logout</button>
+              <LogoutButton className="btn btn-secondary-kp btn-sm-pill" onComplete={() => setUser(null)} />
             </>
           ) : (
             <>
@@ -115,7 +108,7 @@ export default function Navbar() {
         <div className="container">
           {links.map((link) => <Link className={isActive(link.href) ? "active" : ""} href={link.href} key={link.label} aria-current={isActive(link.href) ? "page" : undefined} onClick={() => setIsMenuOpen(false)}>{link.label}</Link>)}
           <div className="mobile-nav-actions">
-            {!isCheckingAuth && user ? <><Link className="btn btn-primary-kp btn-sm-pill" href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link><button className="btn btn-secondary-kp btn-sm-pill" type="button" onClick={handleLogout}>Logout</button></> : !isCheckingAuth ? <><Link className="link-button" href="/login" onClick={() => setIsMenuOpen(false)}>Login</Link><Link className="btn btn-primary-kp btn-sm-pill" href="/signup" onClick={() => setIsMenuOpen(false)}>Get Started</Link></> : null}
+            {!isCheckingAuth && user ? <><Link className="btn btn-primary-kp btn-sm-pill" href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link><LogoutButton className="btn btn-secondary-kp btn-sm-pill" onComplete={() => { setUser(null); setIsMenuOpen(false); }} /></> : !isCheckingAuth ? <><Link className="link-button" href="/login" onClick={() => setIsMenuOpen(false)}>Login</Link><Link className="btn btn-primary-kp btn-sm-pill" href="/signup" onClick={() => setIsMenuOpen(false)}>Get Started</Link></> : null}
           </div>
         </div>
       </div>

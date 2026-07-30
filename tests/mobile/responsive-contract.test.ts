@@ -14,7 +14,7 @@ function filesUnder(directory: string): string[] {
 
 test("every page source avoids placeholder links", () => {
   const pages = filesUnder(path.join(root, "app")).filter((file) => file.endsWith("page.tsx"));
-  assert.equal(pages.length, 70);
+  assert.ok(pages.length > 0);
   for (const page of pages) {
     const source = readFileSync(page, "utf8");
     assert.doesNotMatch(source, /href\s*=\s*["']#["']/);

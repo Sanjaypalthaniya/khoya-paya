@@ -218,26 +218,29 @@ export async function updateCommunityPost(
   if (!existing) throw new CommunityError("NOT_FOUND", "Post not found.", 404);
   if (["REMOVED", "HIDDEN"].includes(existing.status))
     throw new CommunityError("FORBIDDEN", "This post cannot be edited.", 403);
-  return prisma.$transaction(async (tx) => {
-    if (input.mediaIds) await validateMedia(tx, input.mediaIds, authorId, id);
-    await tx.communityPost.update({ where: { id }, data: baseData(input) });
-    if (input.mediaIds) {
-      await tx.postMedia.updateMany({
-        where: { postId: id, id: { notIn: input.mediaIds } },
-        data: { postId: null },
+  return prisma.$transaction(
+    async (tx) => {
+      if (input.mediaIds) await validateMedia(tx, input.mediaIds, authorId, id);
+      await tx.communityPost.update({ where: { id }, data: baseData(input) });
+      if (input.mediaIds) {
+        await tx.postMedia.updateMany({
+          where: { postId: id, id: { notIn: input.mediaIds } },
+          data: { postId: null },
+        });
+        await tx.postMedia.updateMany({
+          where: { id: { in: input.mediaIds } },
+          data: { postId: id },
+        });
+      }
+      if (input.tags) await replaceTags(tx, id, input.tags);
+      const updated = await tx.communityPost.findUniqueOrThrow({
+        where: { id },
+        include: communityPostInclude,
       });
-      await tx.postMedia.updateMany({
-        where: { id: { in: input.mediaIds } },
-        data: { postId: id },
-      });
-    }
-    if (input.tags) await replaceTags(tx, id, input.tags);
-    const updated = await tx.communityPost.findUniqueOrThrow({
-      where: { id },
-      include: communityPostInclude,
-    });
-    return toOwnerPostDto(updated);
-  });
+      return toOwnerPostDto(updated);
+    },
+    { timeout: 15_000 },
+  );
 }
 export async function softDeleteCommunityPost(authorId: string, id: string) {
   const post = await findOwnedPost(id, authorId);

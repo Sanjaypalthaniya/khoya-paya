@@ -140,7 +140,7 @@ export default function CommunityFeed({
   const [loadingMore, setLoadingMore] = useState(false);
   const load = useCallback(
     async (reset: boolean, selected: string, cursor: string | null = null) => {
-      if (reset) setState("REFRESHING");
+      if (reset) setState(current => current === "INITIAL_LOADING" ? "INITIAL_LOADING" : "REFRESHING");
       else setLoadingMore(true);
       setError("");
       try {
@@ -235,21 +235,22 @@ export default function CommunityFeed({
           <span>Community feed</span>
           <h2>{filter === "All" ? "Latest around you" : filter}</h2>
         </div>
-        <button type="button" onClick={() => load(true, filter)}>
-          <RefreshCw size={15} />
-          Refresh
+        <button type="button" onClick={() => load(true, filter)} disabled={state === "REFRESHING"}>
+          <RefreshCw className={state === "REFRESHING" ? "spin" : ""} size={15} />
+          {state === "REFRESHING" ? "Updating…" : "Refresh"}
         </button>
       </div>
-      {(state === "INITIAL_LOADING" || state === "REFRESHING") && (
+      {state === "REFRESHING" && posts.length > 0 ? <div className="feed-refresh-status" role="status"><LoaderCircle className="spin" size={17} /><span><strong>Updating your feed</strong><small>Keeping your current posts visible while we check for new ones.</small></span></div> : null}
+      {(state === "INITIAL_LOADING" || (state === "REFRESHING" && posts.length === 0)) && (
         <div
           className="feed-skeleton"
           role="status"
           aria-label="Loading community posts"
         >
-          <div />
-          <div />
-          <div />
-          <LoaderCircle className="spin" />
+          <div className="feed-skeleton-head"><span /><div><i /><i /></div></div>
+          <div className="feed-skeleton-line wide" />
+          <div className="feed-skeleton-line" />
+          <div className="feed-skeleton-media"><LoaderCircle className="spin" /><span>Loading nearby posts…</span></div>
         </div>
       )}
       {state === "ERROR" && (
@@ -273,7 +274,7 @@ export default function CommunityFeed({
           <span>Publish the first privacy-safe community post.</span>
         </div>
       )}
-      {!["INITIAL_LOADING", "REFRESHING", "ERROR", "OFFLINE"].includes(state) &&
+      {!["INITIAL_LOADING", "ERROR", "OFFLINE"].includes(state) &&
         posts.map((post) => <CommunityPostCard post={post} key={post.id} />)}
       {hasMore ? (
         <button
